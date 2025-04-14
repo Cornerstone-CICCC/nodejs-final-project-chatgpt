@@ -33,7 +33,7 @@ app.use((req, res) => {
 // Start server
 const MONGO_URI = process.env.DATABASE_URL;
 mongoose_1.default
-    .connect(MONGO_URI, { dbName: 'chatgpt_database' })
+    .connect(MONGO_URI, { dbName: 'chatgpt' })
     .then(() => {
     console.log('Connected to MongoDB database');
     // // Start Socket.IO
