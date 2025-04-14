@@ -1,42 +1,6 @@
 ---
-import Layout from '../layouts/Layout.astro';
+import Layout from "../layouts/Layout.astro";
 ---
 
 <Layout>
-	<div class="container">
-	</div>
-	<div class="logo"></div>
 </Layout>
-
-<style>
-	body {
-		background-color: white;
-		max-height: 100vh;
-		margin: 0;
-		padding: 0;
-		scroll-behavior: none;
-	}
-
-	.container {
-		position: relative;
-		translate: 0% -75%;
-		border-radius: 100%;
-		aspect-ratio: 1/1;
-		width: 100%;
-		background-color: orange;
-		scale: 1.9;
-	}
-
-	.logo {
-		position: absolute;
-		top: calc(50% - 80px);
-		left: calc(50% - 70px);
-		transform: -50% -50%;
-		width: 120px;
-		height: 120px;
-		border-radius: 100%;
-		border: 15px solid orange;
-		background-color: white;
-		z-index: 10;
-	}
-</style>
