@@ -110,6 +110,41 @@ const addUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         res.status(500).json({ error: "Failed to create user" });
     }
 });
+// edit user
+const editUserById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    const { firstName, lastName, email, password } = req.body;
+    try {
+        const updates = { firstName, lastName, email };
+        if (password) {
+            updates.password = yield bcrypt_1.default.hash(password, 10);
+        }
+        const updatedUser = yield user_model_1.User.findByIdAndUpdate(id, updates, { new: true });
+        if (!updatedUser) {
+            res.status(404).json({ error: "User does not exist!" });
+            return;
+        }
+        res.status(200).json(updatedUser);
+    }
+    catch (err) {
+        res.status(500).json({ error: "Failed to update user" });
+    }
+});
+// delete user
+const deleteUserById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    try {
+        const deletedUser = yield user_model_1.User.findByIdAndDelete(id);
+        if (!deletedUser) {
+            res.status(404).json({ message: "User not found!" });
+            return;
+        }
+        res.status(200).json({ message: "Deleted user!" });
+    }
+    catch (err) {
+        res.status(500).json({ error: "Failed to delete user" });
+    }
+});
 // logout
 const logout = (req, res) => {
     req.session = null;
@@ -132,4 +167,6 @@ exports.default = {
     addUser,
     logout,
     checkCookie,
+    editUserById,
+    deleteUserById
 };
