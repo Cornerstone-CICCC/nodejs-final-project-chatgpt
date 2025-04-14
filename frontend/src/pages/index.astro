@@ -5,14 +5,13 @@ import Layout from "../layouts/Layout.astro";
 <Layout>
 	<div class="container">
 		<div class="top-half">
-			<div class="icons">
+			<div class="face-container">
 				<div class="icon icon-1">❤️</div>
 				<div class="icon icon-2">💬</div>
 				<div class="icon icon-3">⭕</div>
 				<div class="icon icon-4">❌</div>
 				<div class="icon icon-5">🍑</div>
-			</div>
-			<div class="face-container">
+				<div class="icon icon-6">😙</div>
 				<img src="openjan.png" alt="face" />
 			</div>
 		</div>
@@ -34,40 +33,44 @@ import Layout from "../layouts/Layout.astro";
 		</form>
 
 		<!-- Log in Error -->
-		<div id="error-container" >
+		<div id="error-container">
 			<p id="error-message">Are You Serious?!</p>
-			<img id="error-image" src="/images/img_loginError.jpg" alt="Login Error" width="200" />
+			<img
+				id="error-image"
+				src="/images/img_loginError.jpg"
+				alt="Login Error"
+				width="200"
+			/>
 		</div>
-		
 	</div>
 </Layout>
 
 <script>
-    const form = document.querySelector("#login") as HTMLFormElement;
-    form.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const formData = new FormData(e.target as HTMLFormElement);
-        const formObject = Object.fromEntries(formData.entries());
+	const form = document.querySelector("#login") as HTMLFormElement;
+	form.addEventListener("submit", async (e) => {
+		e.preventDefault();
+		const formData = new FormData(e.target as HTMLFormElement);
+		const formObject = Object.fromEntries(formData.entries());
 
-        const res = await fetch(`http://localhost:3500/login`, {
-            method: "post",
-            credentials: "include",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(formObject),
-        });
+		const res = await fetch(`http://localhost:3500/login`, {
+			method: "post",
+			credentials: "include",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify(formObject),
+		});
 
-        if (res.ok) {
-            window.location.href = "/profile";
-        }
-        const response = await res.json();
-		const errorContainer = document.getElementById("error-container") as HTMLFormElement;
-        errorContainer.style.display = "block";
-
-    });
+		if (res.ok) {
+			window.location.href = "/profile";
+		}
+		const response = await res.json();
+		const errorContainer = document.getElementById(
+			"error-container",
+		) as HTMLFormElement;
+		errorContainer.style.display = "block";
+	});
 </script>
-
 
 <style>
 	/* body {
@@ -89,15 +92,15 @@ import Layout from "../layouts/Layout.astro";
 		background: #fff;
 	}
 
-	#error-container{
+	#error-container {
 		display: none;
 		text-align: center;
 		position: absolute;
 	}
-	#error-image{
+	#error-image {
 		width: 320px;
 	}
-	#error-message{
+	#error-message {
 		position: absolute;
 		top: 10%;
 		left: 20%;
@@ -125,19 +128,61 @@ import Layout from "../layouts/Layout.astro";
 		position: relative;
 		width: 150px;
 		height: 150px;
-		background-color: aquamarine;
 		top: 40%;
 		border-radius: 50%;
 		border: solid 15px #f6ae2b;
 		display: flex;
 		justify-content: center;
 		align-items: center;
-		overflow: hidden;
+		/* overflow: hidden; */
 	}
-	img {
-		width: 100%;
-		height: 120%;
+	.face-container img {
+		border-radius: 50%;
 		object-fit: cover;
+		width: 150px;
+		height: 150px;
+	}
+	.icon {
+		font-size: 2rem;
+		position: absolute;
+		left: 200px;
+	}
+	.icon-1 {
+		top: 184px;
+		left:92px;
+	}
+	.icon-2 {
+		top: 180px;
+		left:10px;
+	}
+	.icon-3 {
+		top: 32px;
+		left: -80px;
+	}
+	.icon-4 {
+		top: 30px;
+	}
+	.icon-5 {
+		top: 130px;
+		left:150px;
+	}
+	.icon-6 {
+		top: 130px;
+		left:-70px;
+	}
+	.icon{
+		animation: rotateOnce 0.6s ease-out forwards;
+	}
+	@keyframes rotateOnce {
+		0% {
+			transform: rotate(0deg);
+		}
+		50%{
+			transform: rotate(170deg);
+		}
+		100% {
+			transform: rotate(0deg);
+		}
 	}
 	.bottom-container {
 		height: 50vh;
@@ -157,7 +202,7 @@ import Layout from "../layouts/Layout.astro";
 		border: solid 4px #f6ae2b;
 		background-color: #f6ae2b;
 	}
-	button:hover{
+	button:hover {
 		cursor: pointer;
 	}
 	#login-email,
@@ -170,10 +215,10 @@ import Layout from "../layouts/Layout.astro";
 		color: #f6ae2b;
 	}
 	a {
-        text-decoration: none;
-        color: inherit;
-    }
-	input{
+		text-decoration: none;
+		color: inherit;
+	}
+	input {
 		text-align: center;
 	}
 </style>
