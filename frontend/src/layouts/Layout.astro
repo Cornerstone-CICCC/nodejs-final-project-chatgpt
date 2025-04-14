@@ -1,27 +1,73 @@
 <!doctype html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
-		<link
-			rel="stylesheet"
-			href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-		/>
-		<script src="https://cdn.tailwindcss.com"></script>
-	</head>
-	<body>
-		<slot />
-	</body>
-</html>
+  <head>
+    <!-- Basic Meta Tags -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="theme-color" content="#0f9d58" />
 
-<style>
-	html,
-	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
-	}
-</style>
+    <!-- SEO -->
+    <meta
+      name="description"
+      content="ChatLink is a fast, secure, and modern messaging app. Connect with friends and family anytime, anywhere."
+    />
+    <meta
+      name="keywords"
+      content="chat, messaging app, private chat, secure messages, real-time messaging, WhatsApp alternative, LINE alternative"
+    />
+    <meta name="author" content="Your Name or Company" />
+
+    <!-- Open Graph / Facebook / LinkedIn -->
+    <meta
+      property="og:title"
+      content="ChatLink - The new way to stay connected"
+    />
+    <meta
+      property="og:description"
+      content="The best messaging app to keep you connected. Fast, secure, and free."
+    />
+    <meta
+      property="og:image"
+      content="https://yourwebsite.com/images/preview.png"
+    />
+
+    <!-- Replace image -->
+    <meta property="og:url" content="https://yourwebsite.com" />
+    <meta property="og:type" content="website" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="ChatLink - The new way to stay connected"
+    />
+    <meta
+      name="twitter:description"
+      content="The new messaging app that has it all. Simple, secure, and fast."
+    />
+    <meta
+      name="twitter:image"
+      content="https://yourwebsite.com/images/preview.png"
+    />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- Font Family -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- CSS Stylesheet -->
+    <link rel="stylesheet" href="./src/styles/global.css" />
+
+    <title>Blah Blah - The new way to stay connected</title>
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
