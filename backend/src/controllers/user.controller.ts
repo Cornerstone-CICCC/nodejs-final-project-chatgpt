@@ -107,6 +107,50 @@ const addUser = async (req: Request, res: Response) => {
   }
 };
 
+// edit user
+const editUserById = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { firstName, lastName, email, password } = req.body;
+
+  try {
+    const updates: any = { firstName, lastName, email };
+
+    if (password) {
+      updates.password = await bcrypt.hash(password, 10);
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(id, updates, { new: true });
+
+    if (!updatedUser) {
+      res.status(404).json({ error: "User does not exist!" });
+      return;
+    }
+
+    res.status(200).json(updatedUser);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to update user" });
+  }
+};
+
+
+// delete user
+const deleteUserById = async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  try {
+    const deletedUser = await User.findByIdAndDelete(id);
+
+    if (!deletedUser) {
+      res.status(404).json({ message: "User not found!" });
+      return;
+    }
+
+    res.status(200).json({ message: "Deleted user!" });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to delete user" });
+  }
+};
+
 // logout
 const logout = (req: Request, res: Response) => {
   req.session = null;
@@ -130,4 +174,6 @@ export default {
   addUser,
   logout,
   checkCookie,
+  editUserById,
+  deleteUserById
 };
