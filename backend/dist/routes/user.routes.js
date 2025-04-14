@@ -12,4 +12,6 @@ userRouter.post('/login', user_controller_1.default.loginUser);
 userRouter.post('/singup', user_controller_1.default.addUser);
 userRouter.get('/logout', user_controller_1.default.logout);
 userRouter.get('/check-cookie', user_controller_1.default.checkCookie);
+userRouter.put('/:id', user_controller_1.default.editUserById);
+userRouter.delete('/:id', user_controller_1.default.deleteUserById);
 exports.default = userRouter;

@@ -24,7 +24,7 @@ const io = new Server(server, {
   cors: {
     origin: 'http://localhost:4321', // Astro
     methods: ["GET", "POST"]
-  },
+  }
 });
 
 // Fallback
@@ -35,7 +35,7 @@ app.use((req: Request, res: Response) => {
 // Start server
 const MONGO_URI = process.env.DATABASE_URL!
 mongoose
-  .connect(MONGO_URI, { dbName: 'chatgpt_database' })
+  .connect(MONGO_URI, { dbName: 'chatgpt' })
   .then(() => {
     console.log('Connected to MongoDB database');
 
