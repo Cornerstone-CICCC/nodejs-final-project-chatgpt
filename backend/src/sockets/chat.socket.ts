@@ -14,9 +14,7 @@ const setupChatSocket = (io: Server) => {
         // Save message to MongoDB
         const chat = new Chat({ roomId, senderId, message });
         await chat.save();
-        console.log(`${message} from ${senderId} saved to ${roomId}`)
 
-        console.log("newMessage", roomId, chat)
         // For room-based broadcast
         io.to(roomId).emit('newMessage', chat)
       } catch (error) {
