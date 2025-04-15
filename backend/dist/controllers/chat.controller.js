@@ -12,9 +12,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const chat_model_1 = require("../models/chat.model");
 // get Message By Room Id
 const getMessageByRoomId = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { room_id } = req.params;
+    const { roomId } = req.params;
     try {
-        const message = yield chat_model_1.Chat.findById(room_id);
+        const message = yield chat_model_1.Chat.findById(roomId);
         if (!message) {
             res.status(404).json({ error: "Message not found" });
             return;

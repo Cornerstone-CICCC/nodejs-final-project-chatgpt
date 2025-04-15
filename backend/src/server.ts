@@ -7,6 +7,7 @@ import { Server } from 'socket.io'
 import cors from 'cors'
 dotven.config()
 import userRouter from './routes/user.routes'
+import chatRouter from './routes/chat.routes'
 
 // Create server
 const app = express()
@@ -17,7 +18,7 @@ app.use(express.json());
 
 // Routes
 app.use('/user', userRouter);
-app.use('/chat',)
+app.use('/chat', chatRouter);
 
 // Create HTTP server and attach Socket.IO
 const server = createServer(app);
