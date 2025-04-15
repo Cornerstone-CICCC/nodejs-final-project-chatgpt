@@ -1,20 +1,35 @@
 import express, { Request, Response } from 'express'
-import dotven from 'dotenv'
+import dotenv from 'dotenv'
 import mongoose from 'mongoose'
 import cookieSession from 'cookie-session'
 import { createServer } from 'http'
 import { Server } from 'socket.io'
 import cors from 'cors'
-dotven.config()
+dotenv.config()
 import userRouter from './routes/user.routes'
 import chatRouter from './routes/chat.routes'
+import chatSocket from './sockets/chat.socket';
 
 // Create server
 const app = express()
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: "http://localhost:4321", // Astro port
+  credentials: true // allow cookie transfer
+}))
 app.use(express.json());
+const SIGN_KEY = process.env.COOKIE_SIGN_KEY
+const ENCRYPT_KEY = process.env.COOKIE_ENCRYPT_KEY
+if (!SIGN_KEY || !ENCRYPT_KEY) {
+  throw new Error("Missing cookie keys!")
+}
+
+app.use(cookieSession({
+  name: 'session',
+  keys: [SIGN_KEY, ENCRYPT_KEY],
+  maxAge: 60 * 60 * 1000
+}))
 
 // Routes
 app.use('/user', userRouter);
@@ -42,7 +57,7 @@ mongoose
     console.log('Connected to MongoDB database');
 
     // // Start Socket.IO
-    // chatSocket(io);
+    chatSocket(io);
 
     // Start the server
     const PORT = process.env.PORT || 3000;
