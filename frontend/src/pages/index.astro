@@ -70,6 +70,13 @@ import Layout from "../layouts/Layout.astro";
 		) as HTMLFormElement;
 		errorContainer.style.display = "block";
 	});
+	const users = async() => {
+		const res = await fetch('http://localhost:3500/user')
+		const data = await res.json()
+		console.log(data);
+		
+	}
+	users()
 </script>
 
 <style>
@@ -125,6 +132,7 @@ import Layout from "../layouts/Layout.astro";
 		position: relative;
 	}
 	.face-container {
+		box-sizing: initial;
 		position: relative;
 		width: 150px;
 		height: 150px;
@@ -148,11 +156,11 @@ import Layout from "../layouts/Layout.astro";
 		left: 200px;
 	}
 	.icon-1 {
-		top: 184px;
+		top: 170px;
 		left:92px;
 	}
 	.icon-2 {
-		top: 180px;
+		top: 170px;
 		left:10px;
 	}
 	.icon-3 {
@@ -185,6 +193,7 @@ import Layout from "../layouts/Layout.astro";
 		}
 	}
 	.bottom-container {
+		margin-top: 2rem;
 		height: 50vh;
 		display: flex;
 		flex-direction: column;
@@ -209,16 +218,18 @@ import Layout from "../layouts/Layout.astro";
 	#login-password {
 		border: solid 2px #f6ae2b;
 		border-radius: 10px;
-		height: 1.5rem;
+		height: 1.6rem;
 	}
 	h1 {
 		color: #f6ae2b;
+		padding: 0.5rem;
 	}
 	a {
 		text-decoration: none;
 		color: inherit;
 	}
 	input {
+		outline: none;
 		text-align: center;
 	}
 </style>
