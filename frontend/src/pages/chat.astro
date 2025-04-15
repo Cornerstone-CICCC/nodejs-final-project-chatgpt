@@ -1,0 +1,207 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout>
+  <main id="container">
+    <ul id="messages">
+      <li class="message">
+        <p class="user">
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Ad eius
+          temporibus aperiam praesentium est facere tempore necessitatibus
+          quisquam quis sequi.
+        </p>
+        <img src="https://placehold.co/40x40" alt="" class="profile-picture" />
+      </li>
+      <li class="message message-friend">
+        <p class="friend">
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Ad eius
+          temporibus aperiam praesentium est facere tempore necessitatibus
+          quisquam quis sequi.
+        </p>
+        <img src="https://placehold.co/40x40" alt="" class="profile-picture" />
+      </li>
+      <li class="message">
+        <p class="user">
+          Lorem ipsum dolor
+        </p>
+        <img src="https://placehold.co/40x40" alt="" class="profile-picture" />
+      </li>
+      <li class="message message-friend">
+        <p class="friend">
+          Lorem ipsum dolor.
+        </p>
+        <img src="https://placehold.co/40x40" alt="" class="profile-picture" />
+      </li>
+      <li class="message">
+        <p class="user">
+          Ad eius temporibus aperiam praesentium est facere tempore necessitatibus
+          quisquam quis sequi.
+        </p>
+        <img src="https://placehold.co/40x40" alt="" class="profile-picture" />
+      </li>
+      <li class="message message-friend">
+        <p class="friend">
+          Lorem ipsum dolor sit amet consectetur adipisicing elit
+        </p>
+        <img src="https://placehold.co/40x40" alt="" class="profile-picture" />
+      </li>
+    </ul>
+  </main>
+
+  <form id="form">
+    <input
+      type="text"
+      id="message"
+      name="message"
+      placeholder="Type your message..."
+    />
+    <button type="submit">Send</button>
+  </form>
+</Layout>
+<script>
+  const form = document.querySelector("#form") as HTMLFormElement;
+  const message = document.querySelector("#message") as HTMLInputElement;
+  const messages = document.querySelector("#messages") as HTMLUListElement;
+  const container = document.querySelector("#container") as HTMLElement;
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const li = document.createElement("li");
+    li.classList.add("message");
+    li.innerHTML = `
+      <p class="user">
+        ${message.value}
+      </p>
+      <img src="https://placehold.co/40x40" alt="" class="profile-picture" />
+    `;
+    messages.appendChild(li);
+    container.scrollTop = container.scrollHeight;
+    message.value = "";
+  });
+</script>
+<style is:global>
+  body {
+    background: #f0f0f0;
+    display: grid;
+    place-content: center;
+    height: 100dvh;
+  }
+
+  main {
+    width: 400px;
+    max-width: 100%;
+    height: 80vh;
+
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    padding: 8px;
+    padding-bottom: 2.2rem;
+    margin-bottom: 16px;
+
+    overflow-x: auto;
+    scroll-behavior: smooth;
+  }
+
+  ul {
+    display: flex;
+    flex-direction: column;
+    list-style: none;
+    padding: 0;
+    gap: 2rem;
+  }
+
+  li.message {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 4px;
+  }
+
+  li.message p {
+    min-width: 40px;
+    position: relative;
+    border-radius: 5px;
+    padding: 4px 8px;
+    text-wrap: pretty;
+  }
+
+  li.message .profile-picture {
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    align-self: flex-end;
+  }
+
+  .user {
+    background-color: var(--main-color);
+    color: #fef4e9;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    margin-left: auto;
+  }
+
+  .user::after {
+    content: " ";
+    position: absolute;
+    bottom: -22px;
+    right: 10px;
+    width: 15px;
+    height: 15px;
+    border-right: 10px solid var(--main-color);
+    border-left: 10px solid transparent;
+    border-top: 12px solid var(--main-color);
+    border-bottom: 12px solid transparent;
+  }
+
+  li.message-friend {
+    flex-direction: row-reverse;
+  }  
+
+  .friend {
+    background-color: var(--secondary-color);
+    color: #fef4e9;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    margin-right: auto;
+  }
+
+  .friend::after {
+    content: " ";
+    position: absolute;
+    bottom: -22px;
+    left: 10px;
+    width: 15px;
+    height: 15px;
+    border-right: 10px solid transparent;
+    border-left: 10px solid var(--secondary-color);
+    border-top: 12px solid var(--secondary-color);
+    border-bottom: 12px solid transparent;
+  }
+
+  form {
+    display: flex;
+
+    input {
+      border-radius: 999999px;
+      flex-grow: 1;
+      border: 0;
+      padding: 8px;
+      margin-right: 8px;
+      border: 1px solid #ccc;
+    }
+  }
+  button {
+    background: #09f;
+    border: 0;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    padding: 8px;
+    transition: background 0.3s ease;
+
+    &:hover {
+      background: rgb(0, 104, 173);
+    }
+  }
+</style>
