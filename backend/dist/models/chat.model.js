@@ -7,8 +7,10 @@ exports.Chat = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
 const mongoose_2 = require("mongoose");
 const ChatSchema = new mongoose_2.Schema({
-    roomId: { type: mongoose_2.Schema.Types.ObjectId, ref: 'Room', required: true },
-    senderId: { type: mongoose_2.Schema.Types.ObjectId, ref: 'User', required: true },
+    //   roomId:  { type: Schema.Types.ObjectId, ref: 'Room', required: true },
+    //   senderId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    roomId: { type: String, required: true },
+    senderId: { type: String, required: true },
     message: { type: String, required: true },
 }, { timestamps: true });
 exports.Chat = mongoose_1.default.model('Chat', ChatSchema);

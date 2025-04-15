@@ -6,16 +6,31 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const mongoose_1 = __importDefault(require("mongoose"));
+const cookie_session_1 = __importDefault(require("cookie-session"));
 const http_1 = require("http");
 const socket_io_1 = require("socket.io");
 const cors_1 = __importDefault(require("cors"));
 dotenv_1.default.config();
 const user_routes_1 = __importDefault(require("./routes/user.routes"));
+const chat_socket_1 = __importDefault(require("./sockets/chat.socket"));
 // Create server
 const app = (0, express_1.default)();
 // Middleware
-app.use((0, cors_1.default)());
+app.use((0, cors_1.default)({
+    origin: "http://localhost:4321", // Astro port
+    credentials: true // allow cookie transfer
+}));
 app.use(express_1.default.json());
+const SIGN_KEY = process.env.COOKIE_SIGN_KEY;
+const ENCRYPT_KEY = process.env.COOKIE_ENCRYPT_KEY;
+if (!SIGN_KEY || !ENCRYPT_KEY) {
+    throw new Error("Missing cookie keys!");
+}
+app.use((0, cookie_session_1.default)({
+    name: 'session',
+    keys: [SIGN_KEY, ENCRYPT_KEY],
+    maxAge: 60 * 60 * 1000
+}));
 // Routes
 app.use('/user', user_routes_1.default);
 // Create HTTP server and attach Socket.IO
@@ -37,7 +52,7 @@ mongoose_1.default
     .then(() => {
     console.log('Connected to MongoDB database');
     // // Start Socket.IO
-    // chatSocket(io);
+    (0, chat_socket_1.default)(io);
     // Start the server
     const PORT = process.env.PORT || 3000;
     server.listen(PORT, () => {
