@@ -18,6 +18,7 @@ app.use((0, cors_1.default)());
 app.use(express_1.default.json());
 // Routes
 app.use('/user', user_routes_1.default);
+app.use('/chat');
 // Create HTTP server and attach Socket.IO
 const server = (0, http_1.createServer)(app);
 const io = new socket_io_1.Server(server, {

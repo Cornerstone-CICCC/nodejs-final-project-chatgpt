@@ -17,6 +17,7 @@ app.use(express.json());
 
 // Routes
 app.use('/user', userRouter);
+app.use('/chat',)
 
 // Create HTTP server and attach Socket.IO
 const server = createServer(app);
