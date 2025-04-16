@@ -8,6 +8,7 @@ import cors from 'cors'
 dotenv.config()
 import userRouter from './routes/user.routes'
 import chatSocket from './sockets/chat.socket';
+import roomRouter from './routes/room.routes'
 
 // Create server
 const app = express()
@@ -32,6 +33,7 @@ app.use(cookieSession({
 
 // Routes
 app.use('/user', userRouter);
+app.use('/room', roomRouter);
 
 // Create HTTP server and attach Socket.IO
 const server = createServer(app);
