@@ -110,7 +110,7 @@ import Layout from "../layouts/Layout.astro";
   }
 
   .top-half::after {
-    content: '';
+    content: "";
     width: calc(50% - 47px);
     height: 10px;
     position: absolute;
@@ -121,7 +121,7 @@ import Layout from "../layouts/Layout.astro";
     z-index: 20;
   }
   .top-half::before {
-    content: '';
+    content: "";
     width: calc(50% - 40.4px);
     height: 10px;
     position: absolute;
@@ -131,7 +131,7 @@ import Layout from "../layouts/Layout.astro";
     border-top-left-radius: 15px 12px;
     z-index: 20;
   }
-  
+
   .face-container {
     position: relative;
     width: 70px;
@@ -161,16 +161,18 @@ import Layout from "../layouts/Layout.astro";
 
   #messages {
     min-height: 200px;
+    height: 100%;
     display: flex;
     flex-direction: column;
+    justify-content: flex-end;
     list-style: none;
     padding: 0;
-    padding-inline: 0.5rem;
-    padding-bottom: 58px;
-    gap: 2rem;
+    padding-inline: 0.7rem;
+    padding-bottom: 80px;
+    gap: 1.8rem;
     overflow: scroll;
+    overflow-y: auto;
     scroll-behavior: smooth;
-    margin-top: auto;
     transition-behavior: allow-discrete;
     transition: height 1s;
   }
@@ -179,6 +181,18 @@ import Layout from "../layouts/Layout.astro";
     display: flex;
     gap: 0.5rem;
     margin-top: 4px;
+    animation: fadeInUp 0.2s ease;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   li.message p {
@@ -187,6 +201,12 @@ import Layout from "../layouts/Layout.astro";
     border-radius: 5px;
     padding: 4px 8px;
     text-wrap: pretty;
+    padding: 10px 14px;
+    line-height: 1.4;
+    font-size: 0.88rem;
+    border-radius: 14px;
+    max-width: 75%;
+    word-wrap: break-word;
   }
 
   li.message .profile-picture {
@@ -198,10 +218,14 @@ import Layout from "../layouts/Layout.astro";
 
   .user {
     background-color: var(--main-color);
-    color: #fef4e9;
     font-weight: 500;
     letter-spacing: 0.3px;
     margin-left: auto;
+  }
+
+  .user,
+  .friend {
+    color: #fff;
   }
 
   .user::after {
@@ -223,7 +247,6 @@ import Layout from "../layouts/Layout.astro";
 
   .friend {
     background-color: var(--secondary-color);
-    color: #fef4e9;
     font-weight: 500;
     letter-spacing: 0.3px;
     margin-right: auto;
@@ -256,10 +279,11 @@ import Layout from "../layouts/Layout.astro";
       border-radius: 999999px;
       flex-grow: 1;
       border: 0;
-      padding: 8px;
       margin-right: 8px;
       border: 1px solid #ccc;
-      background-color: white;
+      font-size: 1rem;
+      background-color: #f9f9f9;
+      padding: 10px 16px;
     }
     input:focus {
       outline: none;
