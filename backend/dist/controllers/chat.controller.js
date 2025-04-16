@@ -14,7 +14,10 @@ const chat_model_1 = require("../models/chat.model");
 const getMessageByRoomId = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { roomId } = req.params;
     try {
-        const messages = yield chat_model_1.Chat.find({ roomId }).sort({ createdAt: 1 });
+        const messages = yield chat_model_1.Chat.find({ roomId })
+            .sort({ createdAt: 1 })
+            .populate("roomId")
+            .populate("senderId", "firstName lastName email");
         res.status(200).json(messages);
     }
     catch (err) {

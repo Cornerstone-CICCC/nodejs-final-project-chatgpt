@@ -5,7 +5,10 @@ import { Chat } from "../models/chat.model";
 const  getMessageByRoomId = async (req: Request, res: Response) => {
   const { roomId } = req.params
   try {
-    const messages = await Chat.find({ roomId }).sort({ createdAt: 1 });
+    const messages = await Chat.find({ roomId })
+    .sort({ createdAt: 1 })
+    .populate("roomId")
+    .populate("senderId","firstName lastName email");
     res.status(200).json(messages)
   } catch (err) {
     res.status(500).json({ error: "Failed to get messgae"})
