@@ -24,17 +24,6 @@ import Layout from "../layouts/Layout.astro";
       <button id="login-btn" type="submit">Log in</button>
       <button id="signup-btn"><a href="/register">Sign up</a></button>
     </form>
-
-    <!-- Log in Error -->
-    <!-- <div id="error-container">
-        <p id="error-message">Are You Serious?!</p>
-        <img
-          id="error-image"
-          src="/images/img_loginError.jpg"
-          alt="Login Error"
-          width="200"
-        />
-      </div> -->
   </main>
 </Layout>
 
@@ -58,10 +47,6 @@ import Layout from "../layouts/Layout.astro";
       window.location.href = "/profile";
     }
     const response = await res.json();
-    const errorContainer = document.getElementById(
-      "error-container"
-    ) as HTMLFormElement;
-    errorContainer.style.display = "block";
   });
 </script> -->
 
@@ -69,24 +54,10 @@ import Layout from "../layouts/Layout.astro";
   body {
     min-height: 100vh;
   }
-  /* #error-container {
-    display: none;
-    text-align: center;
-    position: absolute;
-  }
-  #error-image {
-    width: 320px;
-  }
-  #error-message {
-    position: absolute;
-    top: 10%;
-    left: 20%;
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #c33620;
-  } */
+
   .container {
     margin: auto;
+	padding-bottom: 10px;
     max-width: 450px;
     height: 100%;
     background: #fff;
@@ -198,24 +169,21 @@ import Layout from "../layouts/Layout.astro";
     font-size: 1.1rem;
     border: solid 4px #f6ae2b;
     background-color: #f6ae2b;
-	color: white;
+    color: white;
   }
   button:hover {
     cursor: pointer;
-  }
-  #login-email,
-  #login-password {
-    border: solid 2px #f6ae2b;
-    border-radius: 10px;
-    height: 1.5rem;
   }
   h1 {
     color: #f6ae2b;
   }
   input {
-	padding: 0.9rem 0.5rem;
+    padding: 0.9rem 0.5rem;
+    border: solid 2px #f6ae2b;
+    border-radius: 10px;
+    height: 1.5rem;
   }
   input:focus {
-	outline: none;
+    outline: none;
   }
 </style>
