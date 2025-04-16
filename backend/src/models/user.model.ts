@@ -8,4 +8,16 @@ const UserSchema = new Schema({
   password:  { type: String, required: true },
 }, { timestamps: true })
 
+const getUserByEmail = async (email: string) => {
+  try {
+    return await User.findOne({ email });
+  } catch (err) {
+    console.log("Something went wrong to get user by email");
+  }
+};
+
+export default {
+  getUserByEmail,
+};
+
 export const User = mongoose.model('User', UserSchema)

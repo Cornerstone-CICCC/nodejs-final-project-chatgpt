@@ -10,4 +10,5 @@ const FriendSchema = new mongoose_2.Schema({
     user1Id: { type: mongoose_2.Schema.Types.ObjectId, ref: 'User', required: true },
     user2Id: { type: mongoose_2.Schema.Types.ObjectId, ref: 'User', required: true },
 }, { timestamps: true });
+FriendSchema.index({ user1Id: 1, user2Id: 1 }, { unique: true });
 exports.Friend = mongoose_1.default.model('Friend', FriendSchema);
