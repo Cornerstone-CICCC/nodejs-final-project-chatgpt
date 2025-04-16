@@ -5,7 +5,9 @@ import Layout from "../layouts/Layout.astro";
 <Layout>
   <main class="container" id="container">
     <div class="top-half">
-      <button class="icon-button back-button" aria-label="Back"><a href="/friends">←</a></button>
+      <button class="icon-button back-button" aria-label="Back"
+        ><a href="/friends">←</a></button
+      >
       <div class="face-container">
         <img class="face" src="openjan.svg" alt="face" />
       </div>
@@ -87,7 +89,7 @@ import Layout from "../layouts/Layout.astro";
     margin: auto;
     padding-bottom: 10px;
     max-width: 450px;
-    height: 100%;
+    height: 100vh;
     background: #fff;
     border: 1px solid #ccc;
     border-radius: 4px;
@@ -160,21 +162,13 @@ import Layout from "../layouts/Layout.astro";
   }
 
   #messages {
-    min-height: 200px;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    list-style: none;
-    padding: 0;
+    overflow-y: auto;
     padding-inline: 0.7rem;
     padding-bottom: 80px;
+    display: flex;
+    flex-direction: column;
     gap: 1.8rem;
-    overflow: scroll;
-    overflow-y: auto;
-    scroll-behavior: smooth;
-    transition-behavior: allow-discrete;
-    transition: height 1s;
+    margin-top: auto;
   }
 
   li.message {
