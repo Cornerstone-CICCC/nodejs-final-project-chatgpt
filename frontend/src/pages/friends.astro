@@ -1,0 +1,286 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout>
+  <main class="container" id="container">
+    <div class="top-half">
+      <div class="face-container">
+        <img class="face" src="openjan.svg" alt="face" />
+      </div>
+    </div>
+    <ul class="friends-list">
+      <li class="friend-item">
+        <a href="/chat">
+          <img
+            src="https://unavatar.io/github/alanawuwad"
+            alt="Alan"
+            class="friend-avatar"
+          />
+          <div class="friend-info">
+            <span class="friend-name">Alan</span>
+            <span class="last-message"
+              >Hello Lorem ipsum dolor sit amet consectetur, adipisicing elit.
+              Doloribus, omnis.</span
+            >
+          </div>
+          <span class="last-date">12:45 PM</span>
+        </a>
+      </li>
+      <li class="friend-item">
+        <a href="/chat">
+          <img
+            src="https://unavatar.io/github/kennyale"
+            alt="Kenny"
+            class="friend-avatar"
+          />
+          <div class="friend-info">
+            <span class="friend-name">Kenny Ale</span>
+            <span class="last-message">Hi! Lorem ipsum dolor sit amet.</span>
+          </div>
+          <span class="last-date">12:45 PM</span>
+        </a>
+        <li class="friend-item">
+          <a href="/chat">
+            <img
+              src="https://unavatar.io/github/mizukifujikawa-ciccc"
+              alt="Kenny"
+              class="friend-avatar"
+            />
+            <div class="friend-info">
+              <span class="friend-name">Mizuki</span>
+              <span class="last-message"
+                >Hi! Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                Repudiandae laboriosam dolorem officiis natus delectus,
+                excepturi eaque vitae velit quisquam harum.</span
+              >
+            </div>
+            <span class="last-date">12:45 PM</span>
+          </a>
+        </li>
+      </li>
+      <li class="friend-item">
+        <a href="/chat">
+          <img
+            src="https://unavatar.io/github/chu-pei-ning"
+            alt="Kenny"
+            class="friend-avatar"
+          />
+          <div class="friend-info">
+            <span class="friend-name">Julia</span>
+            <span class="last-message">Hi! Lorem ipsum dolor sit amet.</span>
+          </div>
+          <span class="last-date">12:45 PM</span>
+        </a>
+      </li>
+      <li class="friend-item">
+        <a href="/chat">
+          <img
+            src="https://unavatar.io/github/alanawuwad"
+            alt="Alan"
+            class="friend-avatar"
+          />
+          <div class="friend-info">
+            <span class="friend-name">Alana</span>
+            <span class="last-message">Hello</span>
+          </div>
+          <span class="last-date">12:45 PM</span>
+        </a>
+      </li>
+      <li class="friend-item">
+        <a href="/chat">
+          <img
+            src="https://unavatar.io/github/kennyale"
+            alt="Kenny"
+            class="friend-avatar"
+          />
+          <div class="friend-info">
+            <span class="friend-name">Kenny Ale</span>
+            <span class="last-message">Hi!</span>
+          </div>
+          <span class="last-date">12:45 PM</span>
+        </a>
+      </li>
+      <li class="friend-item">
+        <a href="/chat">
+          <img
+            src="https://unavatar.io/github/mizukifujikawa-ciccc"
+            alt="Kenny"
+            class="friend-avatar"
+          />
+          <div class="friend-info">
+            <span class="friend-name">Mizuki</span>
+            <span class="last-message">Hi!</span>
+          </div>
+          <span class="last-date">12:45 PM</span>
+        </a>
+      </li>
+      <li class="friend-item">
+        <a href="/chat">
+          <img
+            src="https://unavatar.io/github/chu-pei-ning"
+            alt="Kenny"
+            class="friend-avatar"
+          />
+          <div class="friend-info">
+            <span class="friend-name">Julia</span>
+            <span class="last-message">Hi!</span>
+          </div>
+          <span class="last-date">12:45 PM</span>
+        </a>
+      </li>
+    </ul>
+  </main>
+</Layout>
+
+<style is:global>
+  body {
+    min-height: 100vh;
+  }
+
+  .container {
+    margin: auto;
+    padding-bottom: 10px;
+    max-width: 450px;
+    height: 100%;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    scroll-behavior: smooth;
+    /* overflow-y: scroll; */
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .top-half {
+    background-color: var(--main-color);
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    justify-items: center;
+    align-items: flex-end;
+    position: relative;
+  }
+
+  .top-half::after {
+    content: "";
+    width: calc(50% - 44px);
+    height: 10px;
+    position: absolute;
+    background-color: white;
+    left: 0;
+    bottom: 0;
+    border-top-right-radius: 15px 12px;
+    z-index: 20;
+  }
+  .top-half::before {
+    content: "";
+    width: calc(50% - 44px);
+    height: 10px;
+    position: absolute;
+    background-color: white;
+    right: 0;
+    bottom: 0;
+    border-top-left-radius: 15px 12px;
+    z-index: 20;
+  }
+
+  .face-container {
+    position: relative;
+    width: 70px;
+    height: 70px;
+    top: 30%;
+    border-radius: 50%;
+    outline: solid 11px var(--main-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    /* overflow: hidden; */
+  }
+  .face {
+    border-radius: 50%;
+    object-fit: contain;
+    object-position: 1px 18px;
+    width: 100%;
+    height: 100%;
+    background-color: #fff;
+    box-shadow: inset 0 0 9px var(--main-color);
+  }
+
+  .friends-list::-webkit-scrollbar {
+    display: none;
+  }
+
+  .friends-list {
+    width: 100%;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    overflow-y: scroll;
+  }
+
+  .friend-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px;
+    /* background-color: #f9f9f9; */
+    transition: background-color 0.2s;
+    cursor: pointer;
+    position: relative;
+    justify-content: flex-start;
+  }
+
+  .friend-item a {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    /* background-color: #f9f9f9; */
+    position: relative;
+    justify-content: flex-start;
+  }
+
+  .friend-item:hover {
+    background-color: #ececec;
+  }
+
+  .friend-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+  }
+
+  .friend-name {
+    font-weight: 500;
+    font-size: 1rem;
+  }
+
+  .friend-info {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .last-message {
+    color: gray;
+    font-size: 0.9rem;
+    margin-top: 2px;
+    max-width: 250px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .last-date {
+    margin-left: auto;
+    font-size: 0.75rem;
+    color: gray;
+    align-self: flex-start;
+  }
+</style>
