@@ -43,65 +43,73 @@ const getGroupRooms = (req, res) => __awaiter(void 0, void 0, void 0, function* 
         res.status(500).json({ error: "Failed to Group Rooms" });
     }
 });
-// create Room
-const createRoom = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { name, isGroup } = req.body;
-    if (typeof name !== 'string' || typeof isGroup !== 'boolean') {
-        res.status(400).json({ error: "Invalid data format" });
+// CreateRoom
+// createPrivateRoom
+const createPrivateRoom = (users) => __awaiter(void 0, void 0, void 0, function* () {
+    if (users.length !== 2) {
+        console.log("Private room must have exactly 2 users");
         return;
     }
-    // private room
-    if (!isGroup) {
-        const ids = name.split('_');
-        if (ids.length !== 2 || !mongoose_1.Types.ObjectId.isValid(ids[0]) || !mongoose_1.Types.ObjectId.isValid(ids[1])) {
-            res.status(400).json({ error: "Invalid private room name format" });
-            return;
-        }
-        const [id1, id2] = ids.sort();
-        try {
-            // check is friend or not
-            const isFriend = yield friend_model_1.Friend.findOne({ user1Id: id1, user2Id: id2 });
-            if (!isFriend) {
-                res.status(403).json({ error: "Users are not friends" });
-                return;
-            }
-            // check private room is exis?
-            const existing = yield room_model_1.Room.findOne({ name: `${id1}_${id2}`, isGroup: false });
-            if (existing) {
-                res.status(400).json({ error: "Private room already exists" });
-                return;
-            }
-            const newRoom = new room_model_1.Room({ name: `${id1}_${id2}`, isGroup: false });
-            const savedRoom = yield newRoom.save();
-            yield roomMember_model_1.RoomMember.create([
-                { roomId: savedRoom._id, usrId: id1 },
-                { roomId: savedRoom._id, usrId: id2 },
-            ]);
-            res.status(201).json(savedRoom);
-        }
-        catch (err) {
-            console.error(err);
-            res.status(500).json({ error: "Failed to create private room" });
-        }
+    const [id1, id2] = users[0]._id < users[1], _id, [users, []];
+    0;
+    _id, users[1]._id;
+    users[1];
+    _id ? [users[1]._id, users[0]._id] : ;
+    if (!mongoose_1.Types.ObjectId.isValid(id1) || !mongoose_1.Types.ObjectId.isValid(id2)) {
+        console.log("Invalid user IDs");
+        return;
     }
-    // group room
+    // check friends or not
+    const areFriends = yield friend_model_1.Friend.findOne({
+        $or: [
+            { user1Id: id1, user2Id: id2 },
+            { user1Id: id2, user2Id: id1 }
+        ]
+    });
+    if (!areFriends) {
+        console.log("Users are not friends");
+        return;
+    }
+    const name = `${id1}_${id2}`;
+    yield createRoom(res, name, false, [id1, id2]);
+});
+// createGroupRoom
+const createGroupRoom = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { name, users } = req.body;
+    if (typeof name !== 'string' || !Array.isArray(users) || users.length < 2) {
+        res.status(400).json({ error: "Invalid group room data" });
+        return;
+    }
+    yield createRoom(res, name, true, users);
+    res.status(200).json();
+});
+// createRoom
+const createRoom = (name, isGroup, users) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const existing = yield room_model_1.Room.findOne({ name, isGroup: true });
+        const existing = yield room_model_1.Room.findOne({ name, isGroup });
         if (existing) {
-            res.status(400).json({ error: "Group room already exists" });
+            console.log("Room already exists");
             return;
         }
-        const newRoom = new room_model_1.Room({ name, isGroup: true });
-        const saveRoom = yield newRoom.save();
-        res.status(201).json(saveRoom);
+        const newRoom = new room_model_1.Room({ name, isGroup });
+        const savedRoom = yield newRoom.save();
+        // RoomMember
+        const members = users.map((userId) => ({
+            roomId: savedRoom._id,
+            usrId: userId,
+            role: isGroup ? "member" : "participant"
+        }));
+        yield roomMember_model_1.RoomMember.insertMany(members);
+        res.status(201).json(savedRoom);
     }
     catch (err) {
-        res.status(500).json({ error: "Failed to create group room" });
+        res.status(500).json({ error: "Failed to create room" });
     }
 });
 exports.default = {
     getAllRooms,
     getPrivateRooms,
     getGroupRooms,
-    createRoom
+    createPrivateRoom,
+    createGroupRoom
 };

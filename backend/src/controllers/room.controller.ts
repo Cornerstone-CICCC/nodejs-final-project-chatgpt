@@ -3,6 +3,7 @@ import { Room } from "../models/room.model";
 import { Friend } from "../models/friend.model";
 import { RoomMember } from "../models/roomMember.model";
 import { Types } from "mongoose";
+import { IUser } from "../models/user.model";
 
 // get All Rooms
 const getAllRooms = async (req: Request, res: Response) => {
@@ -34,70 +35,85 @@ const getGroupRooms = async (req: Request, res: Response) => {
   }
 }
 
-// create Room
-const createRoom = async (req: Request, res: Response) => {
-  const { name, isGroup } = req.body
+// CreateRoom
 
-  if (typeof name !== 'string' || typeof isGroup !== 'boolean') {
-    res.status(400).json({ error: "Invalid data format" });
-    return
+// createPrivateRoom
+const createPrivateRoom = async (users: Array<IUser>) => {
+
+  if (users.length !== 2) {
+    console.log("Private room must have exactly 2 users" );
+    return;
   }
 
-  // private room
-  if (!isGroup) {
-    const ids = name.split('_');
-    if (ids.length !== 2 || !Types.ObjectId.isValid(ids[0]) || !Types.ObjectId.isValid(ids[1])) {
-      res.status(400).json({ error: "Invalid private room name format" });
-      return
-    }
-
-    const [id1, id2] = ids.sort();
-
-    try {
-      // check is friend or not
-      const isFriend = await Friend.findOne({ user1Id: id1, user2Id: id2 });
-      if (!isFriend) {
-        res.status(403).json({ error: "Users are not friends" });
-        return
-      }
-
-      // check private room is exis?
-      const existing = await Room.findOne({ name: `${id1}_${id2}`, isGroup: false });
-      if (existing) {
-        res.status(400).json({ error: "Private room already exists" });
-        return
-      }
-      const newRoom = new Room({ name: `${id1}_${id2}`, isGroup: false });
-      const savedRoom = await newRoom.save();
-
-      await RoomMember.create([
-        { roomId: savedRoom._id, usrId: id1 },
-        { roomId: savedRoom._id, usrId: id2 },
-      ]);
-
-      res.status(201).json(savedRoom);
-
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: "Failed to create private room" });
-    }
+  const [id1, id2] = users[0]._id < users[1]_id ? [users[0]._id, users[1]._id] : users[1]_id ? [users[1]._id, users[0]._id]; 
+  if (!Types.ObjectId.isValid(id1) || !Types.ObjectId.isValid(id2)) {
+    console.log("Invalid user IDs");
+    return;
   }
 
-  // group room
+  // check friends or not
+  const areFriends = await Friend.findOne({
+    $or: [
+      { user1Id: id1, user2Id: id2 },
+      { user1Id: id2, user2Id: id1 }
+    ]
+  });
+
+  if (!areFriends) {
+    console.log( "Users are not friends" );
+    return;
+  }
+
+  const name = `${id1}_${id2}`;
+  await createRoom(res, name, false, [id1, id2]);
+};
+
+
+// createGroupRoom
+const createGroupRoom = async (req: Request, res: Response) => {
+  const { name, users } = req.body;
+
+  if (typeof name !== 'string' || !Array.isArray(users) || users.length < 2) {
+    res.status(400).json({ error: "Invalid group room data" });
+    return;
+  }
+
+  await createRoom(res, name, true, users);
+
+  res.status(200).json()
+};
+
+
+// createRoom
+const createRoom = async (
+  name: string,
+  isGroup: boolean,
+  users: string[]
+) => {
   try {
-    const existing = await Room.findOne({ name, isGroup: true });
+    const existing = await Room.findOne({ name, isGroup });
     if (existing) {
-      res.status(400).json({ error: "Group room already exists" });
-      return
+      console.log("Room already exists" );
+      return;
     }
 
-    const newRoom = new Room({ name, isGroup: true });
-    const saveRoom = await newRoom.save();
-    res.status(201).json(saveRoom);
+    const newRoom = new Room({ name, isGroup });
+    const savedRoom = await newRoom.save();
+
+    // RoomMember
+    const members = users.map((userId) => ({
+      roomId: savedRoom._id,
+      usrId: userId,
+      role: isGroup ? "member" : "participant"
+    }));
+
+    await RoomMember.insertMany(members);
+
+    res.status(201).json(savedRoom);
   } catch (err) {
-    res.status(500).json({ error: "Failed to create group room" });
+    res.status(500).json({ error: "Failed to create room" });
   }
-}
+};
 
 
 
@@ -105,5 +121,6 @@ export default {
   getAllRooms,
   getPrivateRooms,
   getGroupRooms,
-  createRoom
+  createPrivateRoom,
+  createGroupRoom
 }
