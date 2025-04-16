@@ -12,8 +12,9 @@ const socket_io_1 = require("socket.io");
 const cors_1 = __importDefault(require("cors"));
 dotenv_1.default.config();
 const user_routes_1 = __importDefault(require("./routes/user.routes"));
-const chat_socket_1 = __importDefault(require("./sockets/chat.socket"));
 const chat_routes_1 = __importDefault(require("./routes/chat.routes"));
+const chat_socket_1 = __importDefault(require("./sockets/chat.socket"));
+// Create server
 const app = (0, express_1.default)();
 // Middleware
 app.use((0, cors_1.default)({
@@ -53,7 +54,7 @@ mongoose_1.default
     .then(() => {
     console.log('Connected to MongoDB database');
     // // Start Socket.IO
-    chatSocket(io);
+    (0, chat_socket_1.default)(io);
     // Start the server
     const PORT = process.env.PORT || 3000;
     server.listen(PORT, () => {

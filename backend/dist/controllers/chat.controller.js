@@ -14,12 +14,8 @@ const chat_model_1 = require("../models/chat.model");
 const getMessageByRoomId = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { roomId } = req.params;
     try {
-        const message = yield chat_model_1.Chat.findById(roomId);
-        if (!message) {
-            res.status(404).json({ error: "Message not found" });
-            return;
-        }
-        res.status(200).json(message);
+        const messages = yield chat_model_1.Chat.find({ roomId }).sort({ createdAt: 1 });
+        res.status(200).json(messages);
     }
     catch (err) {
         res.status(500).json({ error: "Failed to get messgae" });
