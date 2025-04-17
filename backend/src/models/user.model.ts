@@ -6,6 +6,7 @@ const UserSchema = new Schema({
   lastName:  { type: String, required: true },
   email:     { type: String, required: true, unique: true },
   password:  { type: String, required: true },
+  imgUrl:    { type: String }
 }, { timestamps: true })
 
 const getUserByEmail = async (email: string) => {
