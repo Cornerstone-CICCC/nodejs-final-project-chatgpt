@@ -11,7 +11,7 @@ import Layout from "../layouts/Layout.astro";
       </div>
     </div>
     <ul class="friends-list">
-      <li class="friend-item">
+      <!-- <li class="friend-item">
         <a href="/chat">
           <img
             src="https://unavatar.io/github/alanawuwad"
@@ -27,120 +27,97 @@ import Layout from "../layouts/Layout.astro";
           </div>
           <span class="last-date">12:45 PM</span>
         </a>
-      </li>
-      <li class="friend-item">
-        <a href="/chat">
-          <img
-            src="https://unavatar.io/github/kennyale"
-            alt="Kenny"
-            class="friend-avatar"
-          />
-          <div class="friend-info">
-            <span class="friend-name">Kenny Ale</span>
-            <span class="last-message">Hi! Lorem ipsum dolor sit amet.</span>
-          </div>
-          <span class="last-date">12:45 PM</span>
-        </a>
-        <li class="friend-item">
-          <a href="/chat">
-            <img
-              src="https://unavatar.io/github/mizukifujikawa-ciccc"
-              alt="Kenny"
-              class="friend-avatar"
-            />
-            <div class="friend-info">
-              <span class="friend-name">Mizuki</span>
-              <span class="last-message"
-                >Hi! Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                Repudiandae laboriosam dolorem officiis natus delectus,
-                excepturi eaque vitae velit quisquam harum.</span
-              >
-            </div>
-            <span class="last-date">12:45 PM</span>
-          </a>
-        </li>
-      </li>
-      <li class="friend-item">
-        <a href="/chat">
-          <img
-            src="https://unavatar.io/github/chu-pei-ning"
-            alt="Kenny"
-            class="friend-avatar"
-          />
-          <div class="friend-info">
-            <span class="friend-name">Julia</span>
-            <span class="last-message">Hi! Lorem ipsum dolor sit amet.</span>
-          </div>
-          <span class="last-date">12:45 PM</span>
-        </a>
-      </li>
-      <li class="friend-item">
-        <a href="/chat">
+      </li> -->
+    </ul>
+  </main>
+</Layout>
+
+<script type="module">
+  // Check Cookie and Get User Id
+  const checkAuth = async () => {
+    const res = await fetch(`http://localhost:3500/user/check-cookie`, {
+      method: "GET",
+      credentials: "include",
+    });
+    if (!res.ok) {
+      window.location.href = "/";
+      return;
+    }
+    const data = await res.json();
+    console.log("Get User Id", data);
+    return data.userId;
+  };
+
+  const userId = await checkAuth();
+
+  // Get User Friends
+  const getFriends = async () => {
+    const res = await fetch(`http://localhost:3500/friend/${userId}`);
+    const data = await res.json();
+    console.log("Get Friends", data);
+    return data;
+  };
+
+  getFriends();
+
+  // Get User Rooms
+  const getRooms = async () => {
+    const res = await fetch(`http://localhost:3500/room/private/${userId}`);
+    const data = await res.json();
+    console.log("Get Private Rooms", data);
+  };
+
+  getRooms();
+
+  // Render Friends
+  const renderFriendList = async () => {
+    const data = await getFriends();
+    data.forEach((friend) => {
+      const list = document.querySelector(".friends-list");
+      const listItem = document.createElement("li");
+      listItem.classList.add("friend-item");
+      listItem.innerHTML = `
+      <a href="/chat">
           <img
             src="https://unavatar.io/github/alanawuwad"
             alt="Alan"
             class="friend-avatar"
           />
           <div class="friend-info">
-            <span class="friend-name">Alana</span>
-            <span class="last-message">Hello</span>
+            <span class="friend-name">Alan</span>
+            <span class="last-message"
+              >Hello Lorem ipsum dolor sit amet consectetur, adipisicing elit.
+              Doloribus, omnis.</span
+            >
           </div>
           <span class="last-date">12:45 PM</span>
         </a>
-      </li>
-      <li class="friend-item">
-        <a href="/chat">
-          <img
-            src="https://unavatar.io/github/kennyale"
-            alt="Kenny"
-            class="friend-avatar"
-          />
-          <div class="friend-info">
-            <span class="friend-name">Kenny Ale</span>
-            <span class="last-message">Hi!</span>
-          </div>
-          <span class="last-date">12:45 PM</span>
-        </a>
-      </li>
-      <li class="friend-item">
-        <a href="/chat">
-          <img
-            src="https://unavatar.io/github/mizukifujikawa-ciccc"
-            alt="Kenny"
-            class="friend-avatar"
-          />
-          <div class="friend-info">
-            <span class="friend-name">Mizuki</span>
-            <span class="last-message">Hi!</span>
-          </div>
-          <span class="last-date">12:45 PM</span>
-        </a>
-      </li>
-      <li class="friend-item">
-        <a href="/chat">
-          <img
-            src="https://unavatar.io/github/chu-pei-ning"
-            alt="Kenny"
-            class="friend-avatar"
-          />
-          <div class="friend-info">
-            <span class="friend-name">Julia</span>
-            <span class="last-message">Hi!</span>
-          </div>
-          <span class="last-date">12:45 PM</span>
-        </a>
-      </li>
-    </ul>
-  </main>
-</Layout>
+    `;
+      list.appendChild(listItem);
+    });
+  };
 
-<script type="module">
+  renderFriendList();
+
+  // const getUsers = async () => {
+  //   const res = await fetch(`http://localhost:3500/user`);
+  //   const data = await res.json();
+  //   console.log(data);
+  // };
+
+  // getUsers()
+
+  const addFriend = async () => {
+    const res = await fetch(`http://localhost:3500/user`);
+  };
+  // Render User Friends
+
+  // LOG OUT
   const logout = document.querySelector("#logout");
-  console.log('Logout', logout);
-  
+
   logout.addEventListener("click", async () => {
-    console.log('Click', );
-    
+    console.log("Click");
+
     const res = await fetch(`http://localhost:3500/user/logout`, {
       method: "GET",
       credentials: "include",
