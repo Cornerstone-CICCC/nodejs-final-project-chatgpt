@@ -1,9 +1,9 @@
   /* CSS Variables */
   :root {
-      --main-color: #f6ac2f;
-      --secondary-color: #c9c9c9;
+      --main-color: #f6a32f;
+      --secondary-color: #9d9d9d;
       --main-text: white;
-      --secondary-text: #c9c9c9;
+      --secondary-text: #9d9d9d;
   }
 
   /* CSS Reset limpio */

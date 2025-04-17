@@ -3,101 +3,108 @@ import Layout from "../layouts/Layout.astro";
 ---
 
 <Layout>
-	<div class="container">
-		<div class="top-half">
-			<div class="face-container">
-				<div class="icon icon-1">❤️</div>
-				<div class="icon icon-2">💬</div>
-				<div class="icon icon-3">⭕</div>
-				<div class="icon icon-4">❌</div>
-				<div class="icon icon-5">🍑</div>
-				<div class="icon icon-6">😙</div>
-				<img src="openjan.png" alt="face" />
-			</div>
-		</div>
-	</div>
-	<div class="bottom-container">
-		<h1>Welcome</h1>
-
-		<form action="" method="post" id="login">
-			<div class="login-container">
-				<input type="text" id="login-email" placeholder="Email" />
-				<input
-					type="password"
-					id="login-password"
-					placeholder="Password"
-				/>
-				<button id="login-btn" type="submit">Log in</button>
-				<button id="signup-btn"><a href="/register">Sign up</a></button>
-			</div>
-		</form>
-
-		<!-- Log in Error -->
-		<div id="error-container">
-			<p id="error-message">Are You Serious?!</p>
-			<img
-				id="error-image"
-				src="/images/img_loginError.jpg"
-				alt="Login Error"
-				width="200"
-			/>
-		</div>
-	</div>
+  <main class="container">
+    <div class="top-half">
+      <div class="face-container">
+        <div class="icon icon-1">❤️</div>
+        <div class="icon icon-2">❤️</div>
+        <div class="icon icon-3">❤️</div>
+        <div class="icon icon-4">❤️</div>
+        <div class="icon icon-5">❤️</div>
+        <div class="icon icon-6">❤️</div>
+        <div class="icon icon-7">❤️</div>
+        <div class="icon icon-8">❤️</div>
+        <img class="face" src="openjan.svg" alt="face" />
+      </div>
+    </div>
+    <h1>Welcome</h1>
+    <form class="login-container" action="" method="post" id="login">
+      <input type="text" id="login-email" placeholder="Email" />
+      <input type="password" id="login-password" placeholder="Password" />
+      <button id="login-btn" type="submit">Log in</button>
+      <button id="signup-btn"><a href="/register">Sign up</a></button>
+    </form>
+  </main>
 </Layout>
 
-<script>
-	const form = document.querySelector("#login") as HTMLFormElement;
-	form.addEventListener("submit", async (e) => {
-		e.preventDefault();
-		const formData = new FormData(e.target as HTMLFormElement);
-		const formObject = Object.fromEntries(formData.entries());
+<!-- <script>
+  const form = document.querySelector("#login") as HTMLFormElement;
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target as HTMLFormElement);
+    const formObject = Object.fromEntries(formData.entries());
 
-		const res = await fetch(`http://localhost:3500/login`, {
-			method: "post",
-			credentials: "include",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify(formObject),
-		});
+    const res = await fetch(`http://localhost:3500/login`, {
+      method: "post",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formObject),
+    });
 
-		if (res.ok) {
-			window.location.href = "/profile";
-		}
-		const response = await res.json();
-		const errorContainer = document.getElementById(
-			"error-container",
-		) as HTMLFormElement;
-		errorContainer.style.display = "block";
-	});
-	const users = async() => {
-		const res = await fetch('http://localhost:3500/user')
-		const data = await res.json()
-		console.log(data);
-		
-	}
-	users()
-</script>
+    if (res.ok) {
+      window.location.href = "/profile";
+    }
+    const response = await res.json();
+  });
+</script> -->
 
 <style>
-	/* body {
-		background-color: #f6ae2b;
-	}
-	face {
-		color: #fffdfa;
-	}
-	white {
-		color: #ffffff;
-	}
-	grey {
-		color: #cacacb;
-	} */
+  body {
+    min-height: 100vh;
+  }
 
-	body {
-		margin: 0;
-		font-family: Arial, sans-serif;
-		background: #fff;
-	}
+  .container {
+    margin: auto;
+	padding-bottom: 10px;
+    max-width: 450px;
+    height: 100%;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    scroll-behavior: smooth;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .top-half {
+    background-color: #f6ae2b;
+    width: 650px;
+    min-height: 60vh;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    translate: 0 -45%;
+    /* top: -450px; */
+    /* left: -450px; */
+  }
+  .face-container {
+    position: relative;
+    width: 140px;
+    height: 140px;
+    top: 50%;
+    border-radius: 50%;
+    outline: solid 15px #f6ae2b;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* overflow: hidden; */
+  }
+  .face {
+    border-radius: 50%;
+    object-fit: contain;
+    object-position: 3px 35px;
+    width: 150px;
+    height: 150px;
+    background-color: #fff;
+    box-shadow: inset 0 0 15px var(--main-color);
+  }
 
 	#error-container {
 		display: none;
