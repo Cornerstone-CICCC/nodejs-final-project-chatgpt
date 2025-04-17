@@ -19,10 +19,10 @@ import Layout from "../layouts/Layout.astro";
     </div>
     <h1>Sign Up</h1>
     <form class="login-container" method="POST" id="signup">
-      <input type="text" id="signup-firstname" placeholder="First Name" />
-      <input type="text" id="signup-lastname" placeholder="Last Name" />
-      <input type="text" id="signup-email" placeholder="Email" />
-      <input type="password" id="signup-password" placeholder="Password" />
+      <input required type="text" id="signup-firstname" name="firstName" placeholder="First Name" />
+      <input required type="text" id="signup-lastname" name="lastName" placeholder="Last Name" />
+      <input required type="text" id="signup-email" name="email" placeholder="Email" />
+      <input required type="password" name="password" id="signup-password" placeholder="Password" />
       <!-- <input
         type="url"
         name="image"
@@ -34,7 +34,28 @@ import Layout from "../layouts/Layout.astro";
   </main>
 </Layout>
 
-<script>
+<script type="module">
+  const form = document.querySelector('#signup')
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault()
+
+    const formData = new FormData(e.target);
+    const formObj = Object.fromEntries(formData.entries()); // Converts form data to JS object
+    const res = await fetch(`http://localhost:3500/user/signup`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formObj),
+    });
+    if (!res.ok) {
+      console.error("Something went wrong");
+      return;
+    }
+    alert('User signed up succesfully')
+    window.location.href = "/register";
+  });
 //   const imginput = document.querySelector("#url-image") as HTMLInputElement;
 //   const userimg = document.querySelector(".face") as HTMLInputElement;
 //   imginput.addEventListener("input", () => {

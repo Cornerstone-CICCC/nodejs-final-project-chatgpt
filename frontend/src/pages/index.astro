@@ -18,24 +18,29 @@ import Layout from "../layouts/Layout.astro";
       </div>
     </div>
     <h1>Welcome</h1>
-    <form class="login-container" action="" method="post" id="login">
-      <input type="text" id="login-email" placeholder="Email" />
-      <input type="password" id="login-password" placeholder="Password" />
+    <form class="login-container" method="post" id="login">
+      <input type="text" id="login-email" name="email" placeholder="Email" />
+      <input
+        type="password"
+        id="login-password"
+        name="password"
+        placeholder="Password"
+      />
       <button id="login-btn" type="submit">Log in</button>
       <button id="signup-btn"><a href="/register">Sign up</a></button>
     </form>
   </main>
 </Layout>
 
-<!-- <script>
+<script>
   const form = document.querySelector("#login") as HTMLFormElement;
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
     const formObject = Object.fromEntries(formData.entries());
 
-    const res = await fetch(`http://localhost:3500/login`, {
-      method: "post",
+    const res = await fetch(`http://localhost:3500/user/login`, {
+      method: "POST",
       credentials: "include",
       headers: {
         "Content-Type": "application/json",
@@ -44,11 +49,10 @@ import Layout from "../layouts/Layout.astro";
     });
 
     if (res.ok) {
-      window.location.href = "/profile";
+      window.location.href = "/friends";
     }
-    const response = await res.json();
   });
-</script> -->
+</script>
 
 <style>
   body {
@@ -57,7 +61,7 @@ import Layout from "../layouts/Layout.astro";
 
   .container {
     margin: auto;
-	padding-bottom: 10px;
+    padding-bottom: 10px;
     max-width: 450px;
     height: 100%;
     background: #fff;

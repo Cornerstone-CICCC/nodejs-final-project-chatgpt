@@ -5,6 +5,7 @@ import Layout from "../layouts/Layout.astro";
 <Layout>
   <main class="container" id="container">
     <div class="top-half">
+      <button id="logout">Logout</button>
       <div class="face-container">
         <img class="face" src="openjan.svg" alt="face" />
       </div>
@@ -133,6 +134,25 @@ import Layout from "../layouts/Layout.astro";
   </main>
 </Layout>
 
+<script type="module">
+  const logout = document.querySelector("#logout");
+  console.log('Logout', logout);
+  
+  logout.addEventListener("click", async () => {
+    console.log('Click', );
+    
+    const res = await fetch(`http://localhost:3500/user/logout`, {
+      method: "GET",
+      credentials: "include",
+    });
+    if (!res.ok) {
+      console.error("Something went wrong");
+      return;
+    }
+    window.location.href = "/";
+  });
+</script>
+
 <style is:global>
   body {
     min-height: 100vh;
@@ -201,6 +221,16 @@ import Layout from "../layouts/Layout.astro";
     z-index: 10;
     /* overflow: hidden; */
   }
+
+  #logout {
+    position: absolute;
+    z-index: 20;
+    background-color: white;
+    right: 5px;
+    top: 5px;
+    cursor: pointer;
+  }
+
   .face {
     border-radius: 50%;
     object-fit: contain;
