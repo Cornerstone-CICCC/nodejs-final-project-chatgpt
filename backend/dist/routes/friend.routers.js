@@ -17,5 +17,5 @@ const friend_controller_1 = __importDefault(require("../controllers/friend.contr
 const friendRouter = (0, express_1.Router)();
 friendRouter.post('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () { yield friend_controller_1.default.addFriend(req, res); })); // ok
 friendRouter.post('/delete', (req, res) => __awaiter(void 0, void 0, void 0, function* () { yield friend_controller_1.default.deleteFriend(req, res); })); // ok
-friendRouter.get('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () { yield friend_controller_1.default.getFriendByUserId(req, res); })); // ok http://localhost:3500/friend/67fd455816b71ebab055dc05
+friendRouter.get('/:userId', (req, res) => __awaiter(void 0, void 0, void 0, function* () { yield friend_controller_1.default.getFriendByUserId(req, res); })); // ok http://localhost:3500/friend/67fd455816b71ebab055dc05
 exports.default = friendRouter;

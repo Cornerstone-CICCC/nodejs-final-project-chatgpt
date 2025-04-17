@@ -46,7 +46,7 @@ const room_model_1 = __importStar(require("../models/room.model"));
 const roomMember_model_1 = __importStar(require("../models/roomMember.model"));
 // get All Rooms
 const getAllRooms = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const userId = req.params.id;
+    const userId = req.params.userId;
     if (!userId) {
         return res.status(400).json({ error: "User ID is required" });
     }
@@ -66,7 +66,7 @@ const getAllRooms = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
 });
 // get Private Rooms
 const getPrivateRooms = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const userId = req.params.id;
+    const userId = req.params.userId;
     if (!userId) {
         return res.status(400).json({ error: "User ID is required" });
     }
@@ -86,7 +86,7 @@ const getPrivateRooms = (req, res) => __awaiter(void 0, void 0, void 0, function
 });
 // get Group Rooms
 const getGroupRooms = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const userId = req.params.id;
+    const userId = req.params.userId;
     if (!userId) {
         return res.status(400).json({ error: "User ID is required" });
     }

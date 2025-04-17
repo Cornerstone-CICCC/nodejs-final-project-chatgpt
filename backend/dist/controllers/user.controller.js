@@ -26,7 +26,7 @@ const getUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 });
 //get user by id
 const getUserById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { id } = req.params;
+    const id = req.params.userId;
     try {
         const user = yield user_model_1.User.findById(id);
         if (!user) {

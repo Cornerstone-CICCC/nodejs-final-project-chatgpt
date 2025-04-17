@@ -4,7 +4,7 @@ import roomMemberModel, { RoomMember } from "../models/roomMember.model";
 
 // get All Rooms
 const getAllRooms = async (req: Request, res: Response) => {
-  const userId = req.params.id;
+  const userId = req.params.userId;
 
   if (!userId) {
     return res.status(400).json({ error: "User ID is required" });
@@ -29,7 +29,7 @@ const getAllRooms = async (req: Request, res: Response) => {
 
 // get Private Rooms
 const getPrivateRooms = async (req: Request, res: Response) => {
-  const userId = req.params.id;
+  const userId = req.params.userId;
 
   if (!userId) {
     return res.status(400).json({ error: "User ID is required" });
@@ -54,7 +54,7 @@ const getPrivateRooms = async (req: Request, res: Response) => {
 
 // get Group Rooms
 const getGroupRooms = async (req: Request, res: Response) => {
-  const userId = req.params.id;
+  const userId = req.params.userId;
 
   if (!userId) {
     return res.status(400).json({ error: "User ID is required" });

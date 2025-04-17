@@ -51,7 +51,7 @@ const room_model_1 = __importStar(require("../models/room.model"));
 const roomMember_model_1 = __importStar(require("../models/roomMember.model"));
 // Get friends by userId
 const getFriendByUserId = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const userId = req.params.id;
+    const userId = req.params.userId;
     console.log('userId', userId);
     try {
         const friendships = yield friend_model_1.Friend.find({

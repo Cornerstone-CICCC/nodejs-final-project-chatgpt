@@ -6,7 +6,7 @@ import roomMemberModel, { RoomMember } from "../models/roomMember.model";
 
 // Get friends by userId
 const getFriendByUserId = async (req: Request, res: Response) => {
-    const userId = req.params.id;
+    const userId = req.params.userId;
 
     console.log('userId', userId)
 
