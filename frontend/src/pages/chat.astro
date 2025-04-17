@@ -17,30 +17,20 @@ import Layout from "../layouts/Layout.astro";
     </div>
     <ul id="messages">
       <li class="message message-friend">
-        <p class="friend">Lorem ipsum dolor.</p>
+        <p class="message-text">Lorem ipsum dolor.</p>
         <img
           src="https://unavatar.io/github/alanawuwad"
           alt=""
           class="profile-picture"
         />
       </li>
-      <li class="message">
-        <p class="user">
+      <li class="message message-user">
+        <p class="message-text">
           Ad eius temporibus aperiam praesentium est facere tempore
           necessitatibus quisquam quis sequi.
         </p>
         <img
           src="https://unavatar.io/github/kennyale"
-          alt=""
-          class="profile-picture"
-        />
-      </li>
-      <li class="message message-friend">
-        <p class="friend">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit
-        </p>
-        <img
-          src="https://unavatar.io/github/alanawuwad"
           alt=""
           class="profile-picture"
         />
@@ -53,11 +43,13 @@ import Layout from "../layouts/Layout.astro";
         name="message"
         placeholder="Type your message..."
       />
+
+      <input type="checkbox" name="alice" id="alice" />
       <button type="submit">Send</button>
     </form>
   </main>
 </Layout>
-<script>
+<!-- <script>
   const form = document.querySelector("#form") as HTMLFormElement;
   const message = document.querySelector("#message") as HTMLInputElement;
   const messages = document.querySelector("#messages") as HTMLUListElement;
@@ -74,6 +66,65 @@ import Layout from "../layouts/Layout.astro";
         ${message.value}
       </p>
       <img src="https://unavatar.io/github/kennyale" alt="" class="profile-picture" />
+    `;
+    messages.appendChild(li);
+    messages.scrollTop = messages.scrollHeight;
+    message.value = "";
+  });
+</script> -->
+<script type="module">
+  import { io } from "https://cdn.socket.io/4.8.1/socket.io.esm.min.js";
+
+  const socket = io("http://localhost:3500");
+
+  console.log("start");
+
+  socket.emit("joinRoom", { roomId: "room_1", username: "Alice" });
+
+  socket.emit("sendMessage", {
+    roomId: "room_1",
+    senderId: "John",
+    message: "Hello Room 1!",
+  });
+
+  const form = document.querySelector("#form");
+  const messages = document.querySelector("#messages");
+  const alice = document.querySelector("#alice");
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const message = document.querySelector("#message").value;
+    console.log(alice.checked);
+    console.log(message);
+    if (alice.checked) {
+      socket.emit("sendMessage", {
+        roomId: "room_1",
+        senderId: "Alice",
+        message: message,
+      });
+      return;
+    }
+    socket.emit("sendMessage", {
+      roomId: "room_1",
+      senderId: "John",
+      message: message,
+    });
+  });
+
+  socket.on("newMessage", (data) => {
+    console.log("New message:", data);
+    const li = document.createElement("li");
+    li.classList.add("message");
+    if (data.senderId !== "John") {
+      li.classList.add("message-friend");
+    } else {
+      li.classList.add("message-user");
+    }
+    li.innerHTML = `
+      <p class="message-text">
+        ${data.message}
+      </p>
+      <img src="https://unavatar.io/github/${data.senderId === 'John' ? "kennyale" : 'alanawuwad'}" alt="" class="profile-picture" />
     `;
     messages.appendChild(li);
     messages.scrollTop = messages.scrollHeight;
@@ -210,19 +261,18 @@ import Layout from "../layouts/Layout.astro";
     align-self: flex-end;
   }
 
-  .user {
+  .message-user p {
     background-color: var(--main-color);
     font-weight: 500;
     letter-spacing: 0.3px;
     margin-left: auto;
   }
 
-  .user,
-  .friend {
+  .message-text{
     color: #fff;
   }
 
-  .user::after {
+  .message-user p::after {
     content: " ";
     position: absolute;
     bottom: -22px;
@@ -239,14 +289,14 @@ import Layout from "../layouts/Layout.astro";
     flex-direction: row-reverse;
   }
 
-  .friend {
+  .message-friend p {
     background-color: var(--secondary-color);
     font-weight: 500;
     letter-spacing: 0.3px;
     margin-right: auto;
   }
 
-  .friend::after {
+  .message-friend p::after {
     content: " ";
     position: absolute;
     bottom: -22px;
