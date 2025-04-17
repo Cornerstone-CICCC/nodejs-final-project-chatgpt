@@ -12,7 +12,9 @@ const socket_io_1 = require("socket.io");
 const cors_1 = __importDefault(require("cors"));
 dotenv_1.default.config();
 const user_routes_1 = __importDefault(require("./routes/user.routes"));
+const chat_routes_1 = __importDefault(require("./routes/chat.routes"));
 const chat_socket_1 = __importDefault(require("./sockets/chat.socket"));
+const room_routes_1 = __importDefault(require("./routes/room.routes"));
 // Create server
 const app = (0, express_1.default)();
 // Middleware
@@ -33,6 +35,8 @@ app.use((0, cookie_session_1.default)({
 }));
 // Routes
 app.use('/user', user_routes_1.default);
+app.use('/chat', chat_routes_1.default);
+app.use('/room', room_routes_1.default);
 // Create HTTP server and attach Socket.IO
 const server = (0, http_1.createServer)(app);
 const io = new socket_io_1.Server(server, {

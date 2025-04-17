@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const chat_model_1 = __importDefault(require("../models/chat.model"));
+const mongoose_1 = require("mongoose");
 const setupChatSocket = (io) => {
     io.on('connection', (socket) => __awaiter(void 0, void 0, void 0, function* () {
         // On connect
@@ -22,7 +23,12 @@ const setupChatSocket = (io) => {
             const { roomId, senderId, message } = data;
             try {
                 // Save message to MongoDB
-                const chat = chat_model_1.default.createChat(roomId, senderId, message);
+                const chat = new chat_model_1.Chat({
+                    roomId: new mongoose_1.Types.ObjectId(roomId),
+                    senderId: new mongoose_1.Types.ObjectId(senderId),
+                    message
+                });
+                yield chat.save();
                 // For room-based broadcast
                 io.to(roomId).emit('newMessage', chat);
             }
@@ -32,11 +38,11 @@ const setupChatSocket = (io) => {
         }));
         socket.on('joinRoom', (data) => {
             socket.join(data.roomId);
-            console.log(`${data.username} has joined the ${data.roomId}`);
+            console.log(`${data.firstName} has joined the ${data.roomId}`);
         });
         socket.on('leaveRoom', (data) => {
             socket.leave(data.roomId);
-            console.log(`${data.username} left ${data.roomId}`);
+            console.log(`${data.firstName} left ${data.roomId}`);
         });
         // On disconnect
         socket.on('disconnect', () => {
