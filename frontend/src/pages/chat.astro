@@ -1,0 +1,345 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout>
+  <main class="container" id="container">
+    <div class="top-half">
+      <button class="icon-button back-button" aria-label="Back"
+        ><a href="/friends">←</a></button
+      >
+      <div class="face-container">
+        <img class="face" src="openjan.svg" alt="face" />
+      </div>
+      <button class="icon-button search-button" aria-label="Search">
+        🔍
+      </button>
+    </div>
+    <ul id="messages">
+      <li class="message message-friend">
+        <p class="message-text">Lorem ipsum dolor.</p>
+        <img
+          src="https://unavatar.io/github/alanawuwad"
+          alt=""
+          class="profile-picture"
+        />
+      </li>
+      <li class="message message-user">
+        <p class="message-text">
+          Ad eius temporibus aperiam praesentium est facere tempore
+          necessitatibus quisquam quis sequi.
+        </p>
+        <img
+          src="https://unavatar.io/github/kennyale"
+          alt=""
+          class="profile-picture"
+        />
+      </li>
+    </ul>
+    <form id="form">
+      <input
+        type="text"
+        id="message"
+        name="message"
+        placeholder="Type your message..."
+      />
+
+      <input type="checkbox" name="alice" id="alice" />
+      <button type="submit">Send</button>
+    </form>
+  </main>
+</Layout>
+<!-- <script>
+  const form = document.querySelector("#form") as HTMLFormElement;
+  const message = document.querySelector("#message") as HTMLInputElement;
+  const messages = document.querySelector("#messages") as HTMLUListElement;
+  const container = document.querySelector("#container") as HTMLElement;
+  document.addEventListener("DOMContentLoaded", () => {
+    messages.scrollTop = messages.scrollHeight;
+  });
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const li = document.createElement("li");
+    li.classList.add("message");
+    li.innerHTML = `
+      <p class="user">
+        ${message.value}
+      </p>
+      <img src="https://unavatar.io/github/kennyale" alt="" class="profile-picture" />
+    `;
+    messages.appendChild(li);
+    messages.scrollTop = messages.scrollHeight;
+    message.value = "";
+  });
+</script> -->
+<script type="module">
+  import { io } from "https://cdn.socket.io/4.8.1/socket.io.esm.min.js";
+
+  const socket = io("http://localhost:3500");
+
+  console.log("start");
+
+  socket.emit("joinRoom", { roomId: "room_1", username: "Alice" });
+
+  socket.emit("sendMessage", {
+    roomId: "room_1",
+    senderId: "John",
+    message: "Hello Room 1!",
+  });
+
+  const form = document.querySelector("#form");
+  const messages = document.querySelector("#messages");
+  const alice = document.querySelector("#alice");
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const message = document.querySelector("#message").value;
+    console.log(alice.checked);
+    console.log(message);
+    if (alice.checked) {
+      socket.emit("sendMessage", {
+        roomId: "room_1",
+        senderId: "Alice",
+        message: message,
+      });
+      return;
+    }
+    socket.emit("sendMessage", {
+      roomId: "room_1",
+      senderId: "John",
+      message: message,
+    });
+  });
+
+  socket.on("newMessage", (data) => {
+    console.log("New message:", data);
+    const li = document.createElement("li");
+    li.classList.add("message");
+    if (data.senderId !== "John") {
+      li.classList.add("message-friend");
+    } else {
+      li.classList.add("message-user");
+    }
+    li.innerHTML = `
+      <p class="message-text">
+        ${data.message}
+      </p>
+      <img src="https://unavatar.io/github/${data.senderId === 'John' ? "kennyale" : 'alanawuwad'}" alt="" class="profile-picture" />
+    `;
+    messages.appendChild(li);
+    messages.scrollTop = messages.scrollHeight;
+    message.value = "";
+  });
+</script>
+<style is:global>
+  body {
+    min-height: 100vh;
+  }
+
+  .container {
+    margin: auto;
+    padding-bottom: 10px;
+    max-width: 450px;
+    height: 100vh;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    scroll-behavior: smooth;
+    /* overflow-y: scroll; */
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .top-half {
+    background-color: var(--main-color);
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    position: relative;
+  }
+
+  .top-half::after {
+    content: "";
+    width: calc(50% - 47px);
+    height: 10px;
+    position: absolute;
+    background-color: white;
+    left: 0;
+    bottom: 0;
+    border-top-right-radius: 15px 12px;
+    z-index: 20;
+  }
+  .top-half::before {
+    content: "";
+    width: calc(50% - 40.4px);
+    height: 10px;
+    position: absolute;
+    background-color: white;
+    right: 0;
+    bottom: 0;
+    border-top-left-radius: 15px 12px;
+    z-index: 20;
+  }
+
+  .face-container {
+    position: relative;
+    width: 70px;
+    height: 70px;
+    top: 30%;
+    border-radius: 50%;
+    outline: solid 11px var(--main-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    /* overflow: hidden; */
+  }
+  .face {
+    border-radius: 50%;
+    object-fit: contain;
+    object-position: 1px 18px;
+    width: 100%;
+    height: 100%;
+    background-color: #fff;
+    box-shadow: inset 0 0 9px var(--main-color);
+  }
+
+  #messages::-webkit-scrollbar {
+    display: none;
+  }
+
+  #messages {
+    overflow-y: auto;
+    padding-inline: 0.7rem;
+    padding-bottom: 80px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.8rem;
+    margin-top: auto;
+  }
+
+  li.message {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 4px;
+    animation: fadeInUp 0.2s ease;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  li.message p {
+    min-width: 40px;
+    position: relative;
+    border-radius: 5px;
+    padding: 4px 8px;
+    text-wrap: pretty;
+    padding: 10px 14px;
+    line-height: 1.4;
+    font-size: 0.88rem;
+    border-radius: 14px;
+    max-width: 75%;
+    word-wrap: break-word;
+  }
+
+  li.message .profile-picture {
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    align-self: flex-end;
+  }
+
+  .message-user p {
+    background-color: var(--main-color);
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    margin-left: auto;
+  }
+
+  .message-text{
+    color: #fff;
+  }
+
+  .message-user p::after {
+    content: " ";
+    position: absolute;
+    bottom: -22px;
+    right: 10px;
+    width: 15px;
+    height: 15px;
+    border-right: 10px solid var(--main-color);
+    border-left: 10px solid transparent;
+    border-top: 12px solid var(--main-color);
+    border-bottom: 12px solid transparent;
+  }
+
+  li.message-friend {
+    flex-direction: row-reverse;
+  }
+
+  .message-friend p {
+    background-color: var(--secondary-color);
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    margin-right: auto;
+  }
+
+  .message-friend p::after {
+    content: " ";
+    position: absolute;
+    bottom: -22px;
+    left: 10px;
+    width: 15px;
+    height: 15px;
+    border-right: 10px solid transparent;
+    border-left: 10px solid var(--secondary-color);
+    border-top: 12px solid var(--secondary-color);
+    border-bottom: 12px solid transparent;
+  }
+
+  form {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 450px;
+    height: 40px;
+
+    input {
+      border-radius: 999999px;
+      flex-grow: 1;
+      border: 0;
+      margin-right: 8px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+      background-color: #f9f9f9;
+      padding: 10px 16px;
+    }
+    input:focus {
+      outline: none;
+    }
+  }
+  button {
+    background-color: var(--main-color);
+    border: 0;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    padding: 8px;
+    transition: background-color 0.3s ease;
+  }
+</style>
