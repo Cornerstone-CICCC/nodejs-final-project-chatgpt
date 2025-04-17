@@ -13,7 +13,11 @@ const chat_model_1 = require("../models/chat.model");
 // get Message By Room Id
 const getMessageByRoomId = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { roomId } = req.params;
+    if (!roomId) {
+        return res.status(400).json({ error: "roomId is required" });
+    }
     try {
+        console.log("start");
         const messages = yield chat_model_1.Chat.find({ roomId })
             .sort({ createdAt: 1 })
             .populate("roomId")
