@@ -10,14 +10,18 @@ const RoomSchema = new Schema({
 
 export const Room = mongoose.model('Room', RoomSchema)
 
-
-const createPrivateRoomName = async (users: string[]) => {
+const createPrivateRoom = async (users: string[]) => {
     if (users.length !== 2) {
       throw new Error("Private room must have exactly 2 users");
     }
 
     const [user1, user2] = users.sort();
-    return `${user1}_${user2}`;
+
+    return await createRoom(`${user1}_${user2}`, false)
+};
+
+const createGroupRoom = async (name: string) => {
+    return await createRoom(name, true)
 };
 
 const createRoom = async (
@@ -30,6 +34,6 @@ const createRoom = async (
 
 
 export default {
-    createPrivateRoomName,
-    createRoom,
+    createPrivateRoom,
+    createGroupRoom,
 }

@@ -6,10 +6,11 @@ import { createServer } from 'http'
 import { Server } from 'socket.io'
 import cors from 'cors'
 dotenv.config()
+import chatSocket from './sockets/chat.socket'
 import userRouter from './routes/user.routes'
 import chatRouter from './routes/chat.routes'
-import chatSocket from './sockets/chat.socket';
 import roomRouter from './routes/room.routes'
+import friendRouter from './routes/friend.routers'
 
 // Create server
 const app = express()
@@ -36,6 +37,7 @@ app.use(cookieSession({
 app.use('/user', userRouter);
 app.use('/chat', chatRouter);
 app.use('/room', roomRouter);
+app.use('/friend', friendRouter);
 
 // Create HTTP server and attach Socket.IO
 const server = createServer(app);

@@ -111,7 +111,7 @@ const createGroupRoom = (req, res) => __awaiter(void 0, void 0, void 0, function
         return res.status(400).json({ error: "Invalid input" });
     }
     try {
-        const room = yield room_model_1.default.createRoom(name, true);
+        const room = yield room_model_1.default.createGroupRoom(name);
         const member = yield roomMember_model_1.default.createMembers(room._id, users);
         res.status(201).json({ room, member });
     }

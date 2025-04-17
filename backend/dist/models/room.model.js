@@ -49,18 +49,21 @@ const RoomSchema = new mongoose_1.Schema({
     isGroup: { type: Boolean, required: true },
 }, { timestamps: true });
 exports.Room = mongoose_1.default.model('Room', RoomSchema);
-const createPrivateRoomName = (users) => __awaiter(void 0, void 0, void 0, function* () {
+const createPrivateRoom = (users) => __awaiter(void 0, void 0, void 0, function* () {
     if (users.length !== 2) {
         throw new Error("Private room must have exactly 2 users");
     }
     const [user1, user2] = users.sort();
-    return `${user1}_${user2}`;
+    return yield createRoom(`${user1}_${user2}`, false);
+});
+const createGroupRoom = (name) => __awaiter(void 0, void 0, void 0, function* () {
+    return yield createRoom(name, true);
 });
 const createRoom = (name, isGroup) => __awaiter(void 0, void 0, void 0, function* () {
     const room = new exports.Room({ name, isGroup });
     return yield room.save();
 });
 exports.default = {
-    createPrivateRoomName,
-    createRoom,
+    createPrivateRoom,
+    createGroupRoom,
 };
