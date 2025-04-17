@@ -17,38 +17,33 @@ import Layout from "../layouts/Layout.astro";
         <img class="face" src="openjan.svg" alt="face" />
       </div>
     </div>
-    <h1>Welcome</h1>
-    <form class="login-container" action="" method="post" id="login">
-      <input type="text" id="login-email" placeholder="Email" />
-      <input type="password" id="login-password" placeholder="Password" />
-      <button id="login-btn" type="submit">Log in</button>
-      <button id="signup-btn"><a href="/register">Sign up</a></button>
+    <h1>Sign Up</h1>
+    <form class="login-container" method="POST" id="signup">
+      <input type="text" id="signup-firstname" placeholder="First Name" />
+      <input type="text" id="signup-lastname" placeholder="Last Name" />
+      <input type="text" id="signup-email" placeholder="Email" />
+      <input type="password" id="signup-password" placeholder="Password" />
+      <!-- <input
+        type="url"
+        name="image"
+        id="url-image"
+        placeholder="URL of your photo"
+      /> -->
+      <button id="signup-btn" type="submit">Sign up</button>
     </form>
   </main>
 </Layout>
 
-<!-- <script>
-  const form = document.querySelector("#login") as HTMLFormElement;
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target as HTMLFormElement);
-    const formObject = Object.fromEntries(formData.entries());
-
-    const res = await fetch(`http://localhost:3500/login`, {
-      method: "post",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(formObject),
-    });
-
-    if (res.ok) {
-      window.location.href = "/profile";
-    }
-    const response = await res.json();
-  });
-</script> -->
+<script>
+//   const imginput = document.querySelector("#url-image") as HTMLInputElement;
+//   const userimg = document.querySelector(".face") as HTMLInputElement;
+//   imginput.addEventListener("input", () => {
+//     const url = imginput.value.trim();
+//     if (url) {
+//       userimg.src = url;
+//     }
+//   });
+</script>
 
 <style>
   body {
@@ -57,7 +52,7 @@ import Layout from "../layouts/Layout.astro";
 
   .container {
     margin: auto;
-	padding-bottom: 10px;
+    padding-bottom: 10px;
     max-width: 450px;
     height: 100%;
     background: #fff;
@@ -66,10 +61,17 @@ import Layout from "../layouts/Layout.astro";
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     scroll-behavior: smooth;
     overflow: hidden;
+    overflow-y: scroll;
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
   }
+
+  .container::-webkit-scrollbar {
+    display: none;
+  }
+
   .top-half {
     background-color: #f6ae2b;
     width: 650px;
