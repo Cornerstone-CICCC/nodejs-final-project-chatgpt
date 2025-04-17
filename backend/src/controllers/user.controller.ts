@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { User } from "../models/user.model";
 import bcrypt from "bcrypt";
-import { error } from "console";
 
 // get all users
 const getUsers = async (req: Request, res: Response) => {

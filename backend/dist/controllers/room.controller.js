@@ -1,4 +1,37 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -9,107 +42,87 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const room_model_1 = require("../models/room.model");
-const friend_model_1 = require("../models/friend.model");
-const roomMember_model_1 = require("../models/roomMember.model");
-const mongoose_1 = require("mongoose");
+const room_model_1 = __importStar(require("../models/room.model"));
+const roomMember_model_1 = __importStar(require("../models/roomMember.model"));
 // get All Rooms
 const getAllRooms = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const userId = req.params.id;
+    if (!userId) {
+        return res.status(400).json({ error: "User ID is required" });
+    }
     try {
-        const rooms = yield room_model_1.Room.find();
+        // Get memberships that user joined
+        const memberships = yield roomMember_model_1.RoomMember.find({ userId });
+        // Get roomId
+        const roomIds = memberships.map(m => m.roomId);
+        // Get room info
+        const rooms = yield room_model_1.Room.find({ _id: { $in: roomIds } });
         res.status(200).json(rooms);
     }
     catch (err) {
+        console.error("Error fetching rooms:", err);
         res.status(500).json({ error: "Failed to fetch rooms" });
     }
 });
 // get Private Rooms
 const getPrivateRooms = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const userId = req.params.id;
+    if (!userId) {
+        return res.status(400).json({ error: "User ID is required" });
+    }
     try {
-        const privateRooms = yield room_model_1.Room.find({ isGroup: false });
-        res.status(200).json(privateRooms);
+        // Get memberships that user joined
+        const memberships = yield roomMember_model_1.RoomMember.find({ userId });
+        // Get roomId
+        const roomIds = memberships.map(m => m.roomId);
+        // Get room info
+        const rooms = yield room_model_1.Room.find({ _id: { $in: roomIds }, isGroup: false });
+        res.status(200).json(rooms);
     }
     catch (err) {
-        res.status(500).json({ error: "Failed to fetch Private Rooms" });
+        console.error("Error fetching rooms:", err);
+        res.status(500).json({ error: "Failed to fetch rooms" });
     }
 });
 // get Group Rooms
 const getGroupRooms = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const userId = req.params.id;
+    if (!userId) {
+        return res.status(400).json({ error: "User ID is required" });
+    }
     try {
-        const groupRooms = yield room_model_1.Room.find({ isGroup: true });
-        res.status(200).json(groupRooms);
+        // Get memberships that user joined
+        const memberships = yield roomMember_model_1.RoomMember.find({ userId });
+        // Get roomId
+        const roomIds = memberships.map(m => m.roomId);
+        // Get room info
+        const rooms = yield room_model_1.Room.find({ _id: { $in: roomIds }, isGroup: true });
+        res.status(200).json(rooms);
     }
     catch (err) {
-        res.status(500).json({ error: "Failed to Group Rooms" });
+        console.error("Error fetching rooms:", err);
+        res.status(500).json({ error: "Failed to fetch rooms" });
     }
-});
-// CreateRoom
-// createPrivateRoom
-const createPrivateRoom = (users) => __awaiter(void 0, void 0, void 0, function* () {
-    if (users.length !== 2) {
-        console.log("Private room must have exactly 2 users");
-        return;
-    }
-    const [id1, id2] = users[0]._id < users[1], _id, [users, []];
-    0;
-    _id, users[1]._id;
-    users[1];
-    _id ? [users[1]._id, users[0]._id] : ;
-    if (!mongoose_1.Types.ObjectId.isValid(id1) || !mongoose_1.Types.ObjectId.isValid(id2)) {
-        console.log("Invalid user IDs");
-        return;
-    }
-    // check friends or not
-    const areFriends = yield friend_model_1.Friend.findOne({
-        $or: [
-            { user1Id: id1, user2Id: id2 },
-            { user1Id: id2, user2Id: id1 }
-        ]
-    });
-    if (!areFriends) {
-        console.log("Users are not friends");
-        return;
-    }
-    const name = `${id1}_${id2}`;
-    yield createRoom(res, name, false, [id1, id2]);
 });
 // createGroupRoom
 const createGroupRoom = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { name, users } = req.body;
-    if (typeof name !== 'string' || !Array.isArray(users) || users.length < 2) {
-        res.status(400).json({ error: "Invalid group room data" });
-        return;
+    if (!name || !users || users.length === 0) {
+        return res.status(400).json({ error: "Invalid input" });
     }
-    yield createRoom(res, name, true, users);
-    res.status(200).json();
-});
-// createRoom
-const createRoom = (name, isGroup, users) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const existing = yield room_model_1.Room.findOne({ name, isGroup });
-        if (existing) {
-            console.log("Room already exists");
-            return;
-        }
-        const newRoom = new room_model_1.Room({ name, isGroup });
-        const savedRoom = yield newRoom.save();
-        // RoomMember
-        const members = users.map((userId) => ({
-            roomId: savedRoom._id,
-            usrId: userId,
-            role: isGroup ? "member" : "participant"
-        }));
-        yield roomMember_model_1.RoomMember.insertMany(members);
-        res.status(201).json(savedRoom);
+        const room = yield room_model_1.default.createRoom(name, true);
+        const member = yield roomMember_model_1.default.createMembers(room._id, users);
+        res.status(201).json({ room, member });
     }
     catch (err) {
-        res.status(500).json({ error: "Failed to create room" });
+        console.error("Failed to create group room:", err);
+        res.status(500).json({ error: "Failed to create group room" });
     }
 });
 exports.default = {
     getAllRooms,
     getPrivateRooms,
     getGroupRooms,
-    createPrivateRoom,
-    createGroupRoom
+    createGroupRoom,
 };
