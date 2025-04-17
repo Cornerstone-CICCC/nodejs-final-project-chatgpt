@@ -12,7 +12,7 @@ const setupChatSocket = (io: Server) => {
 
       try {
         // Save message to MongoDB
-        const chat = chatModel.createChat(roomId, senderId, message);
+        const chat = await chatModel.createChat(roomId, senderId, message);
 
         // For room-based broadcast
         io.to(roomId).emit('newMessage', chat)
