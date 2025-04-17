@@ -10,7 +10,6 @@ const  getMessageByRoomId = async (req: Request, res: Response) => {
   }
 
   try {
-    console.log("start")
     const messages = await Chat.find({ roomId })
     .sort({ createdAt: 1 })
     .populate("roomId")

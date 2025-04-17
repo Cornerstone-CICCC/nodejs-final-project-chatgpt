@@ -1,5 +1,5 @@
 import { Server, Socket } from 'socket.io';
-import { Chat } from '../models/chat.model';
+import chatModel from '../models/chat.model';
 
 const setupChatSocket = (io: Server) => {
   io.on('connection', async (socket: Socket) => {
@@ -12,8 +12,7 @@ const setupChatSocket = (io: Server) => {
 
       try {
         // Save message to MongoDB
-        const chat = new Chat({ roomId, senderId, message });
-        await chat.save();
+        const chat = await chatModel.createChat(roomId, senderId, message);
 
         // For room-based broadcast
         io.to(roomId).emit('newMessage', chat)

@@ -17,7 +17,6 @@ const getMessageByRoomId = (req, res) => __awaiter(void 0, void 0, void 0, funct
         return res.status(400).json({ error: "roomId is required" });
     }
     try {
-        console.log("start");
         const messages = yield chat_model_1.Chat.find({ roomId })
             .sort({ createdAt: 1 })
             .populate("roomId")
