@@ -86,7 +86,7 @@ const createGroupRoom = async (req: Request, res: Response) => {
   }
 
   try {
-    const room = await roomModel.createRoom(name, true);
+    const room = await roomModel.createGroupRoom(name);
     const member = await roomMemberModel.createMembers(room._id, users);
 
     res.status(201).json({room, member});

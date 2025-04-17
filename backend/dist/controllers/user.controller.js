@@ -39,21 +39,6 @@ const getUserById = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         res.status(500).json({ error: "Something went wrong" });
     }
 });
-// get user by email
-const getUserByEmail = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { email } = req.body;
-    try {
-        const user = yield user_model_1.User.findOne({ email });
-        if (!user) {
-            res.status(404).json({ error: "User not found" });
-            return;
-        }
-        res.status(200).json(user);
-    }
-    catch (err) {
-        res.status(500).json({ error: "Something went wrong" });
-    }
-});
 // login user
 const loginUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password } = req.body;
@@ -127,7 +112,6 @@ const checkCookie = (req, res) => {
 exports.default = {
     getUsers,
     getUserById,
-    getUserByEmail,
     loginUser,
     addUser,
     logout,

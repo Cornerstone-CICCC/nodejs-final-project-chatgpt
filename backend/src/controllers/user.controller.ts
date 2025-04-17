@@ -26,20 +26,7 @@ const getUserById = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Something went wrong" });
   }
 }
-// get user by email
-const getUserByEmail = async (req: Request, res: Response) => {
-  const { email } = req.body;
-  try {
-    const user = await User.findOne({ email });
-    if (!user) {
-      res.status(404).json({ error: "User not found" });
-      return;
-    }
-    res.status(200).json(user);
-  } catch (err) {
-    res.status(500).json({ error: "Something went wrong" });
-  }
-};
+
 
 // login user
 const loginUser = async (req: Request, res: Response) => {
@@ -124,7 +111,6 @@ const checkCookie = (req: Request, res: Response) => {
 export default {
   getUsers,
   getUserById,
-  getUserByEmail,
   loginUser,
   addUser,
   logout,

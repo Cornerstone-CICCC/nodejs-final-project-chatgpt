@@ -12,24 +12,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.User = void 0;
-const mongoose_1 = __importDefault(require("mongoose"));
-const mongoose_2 = require("mongoose");
-const UserSchema = new mongoose_2.Schema({
-    firstName: { type: String, required: true },
-    lastName: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
-}, { timestamps: true });
-const getUserByEmail = (email) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        return yield exports.User.findOne({ email });
-    }
-    catch (err) {
-        console.log("Something went wrong to get user by email");
-    }
-});
-exports.default = {
-    getUserByEmail,
-};
-exports.User = mongoose_1.default.model('User', UserSchema);
+const express_1 = require("express");
+const friend_controller_1 = __importDefault(require("../controllers/friend.controller"));
+const friendRouter = (0, express_1.Router)();
+friendRouter.post('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () { yield friend_controller_1.default.addFriend(req, res); })); // ok
+friendRouter.post('/delete', (req, res) => __awaiter(void 0, void 0, void 0, function* () { yield friend_controller_1.default.deleteFriend(req, res); })); // ok
+friendRouter.get('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () { yield friend_controller_1.default.getFriendByUserId(req, res); })); // ok http://localhost:3500/friend/67fd455816b71ebab055dc05
+exports.default = friendRouter;
