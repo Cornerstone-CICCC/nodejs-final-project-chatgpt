@@ -48,10 +48,11 @@ import Layout from "../layouts/Layout.astro";
     return data.userId;
   };
 
-  const userId = await checkAuth();
-
   // Get User Friends
-  const getFriends = async () => {
+  const getFriends = async (userId) => {
+    if (!userId) {
+      userId = await checkAuth();
+    }
     const res = await fetch(`http://localhost:3500/friend/${userId}`);
     const data = await res.json();
     console.log("Get Friends", data);
@@ -61,40 +62,49 @@ import Layout from "../layouts/Layout.astro";
   getFriends();
 
   // Get User Rooms
-  const getRooms = async () => {
+  const getRooms = async (userId) => {
     const res = await fetch(`http://localhost:3500/room/private/${userId}`);
     const data = await res.json();
-    console.log("Get Private Rooms", data);
+    console.log(`Get Private Rooms for ${userId}`, data);
+    return data;
   };
-
-  getRooms();
 
   // Render Friends
   const renderFriendList = async () => {
-    const data = await getFriends();
-    data.forEach((friend) => {
-      const list = document.querySelector(".friends-list");
+    const userId = await checkAuth();
+    const friends = await getFriends(userId);
+    const rooms = await getRooms(userId);
+
+    const list = document.querySelector(".friends-list");
+
+    for (const friend of friends) {
+      const matchedRoom = rooms.find(
+        (room) => room.name.includes(userId) && room.name.includes(friend._id)
+      );
+
+      if (!matchedRoom) return;
+      console.log('matched', matchedRoom);
+
       const listItem = document.createElement("li");
       listItem.classList.add("friend-item");
       listItem.innerHTML = `
-      <a href="/chat">
-          <img
-            src="https://unavatar.io/github/alanawuwad"
-            alt="Alan"
-            class="friend-avatar"
-          />
-          <div class="friend-info">
-            <span class="friend-name">Alan</span>
-            <span class="last-message"
-              >Hello Lorem ipsum dolor sit amet consectetur, adipisicing elit.
-              Doloribus, omnis.</span
-            >
-          </div>
-          <span class="last-date">12:45 PM</span>
-        </a>
+      <a href="/${matchedRoom._id}">
+        <img
+          src="https://unavatar.io/github/${friend.username || "default"}"
+          alt="${friend.firstName}"
+          class="friend-avatar"
+        />
+        <div class="friend-info">
+          <span class="friend-name">${friend.firstName}</span>
+          <span class="last-message">
+            Hello Lorem ipsum dolor sit amet consectetur, adipisicing elit.
+          </span>
+        </div>
+        <span class="last-date">12:45 PM</span>
+      </a>
     `;
       list.appendChild(listItem);
-    });
+    }
   };
 
   renderFriendList();
