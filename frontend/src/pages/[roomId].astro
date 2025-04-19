@@ -23,27 +23,7 @@ console.log(room);
         🔍
       </button>
     </div>
-    <ul id="messages" room-id={roomId}>
-      <li class="message message-friend">
-        <p class="message-text">Lorem ipsum dolor.</p>
-        <img
-          src="https://unavatar.io/github/alanawuwad"
-          alt=""
-          class="profile-picture"
-        />
-      </li>
-      <li class="message message-user">
-        <p class="message-text">
-          Ad eius temporibus aperiam praesentium est facere tempore
-          necessitatibus quisquam quis sequi.
-        </p>
-        <img
-          src="https://unavatar.io/github/kennyale"
-          alt=""
-          class="profile-picture"
-        />
-      </li>
-    </ul>
+    <ul id="messages" room-id={roomId}></ul>
     <form id="form">
       <input
         type="text"
@@ -162,7 +142,7 @@ console.log(room);
 
     const li = document.createElement("li");
     li.classList.add("message");
-    if (data.senderId !== await checkAuth()) {
+    if (data.senderId !== (await checkAuth())) {
       li.classList.add("message-friend");
     } else {
       li.classList.add("message-user");
@@ -260,6 +240,7 @@ console.log(room);
   }
 
   #messages {
+    width: 100%;
     overflow-y: auto;
     padding-inline: 0.7rem;
     padding-bottom: 80px;
