@@ -20,6 +20,7 @@ const UserSchema = new mongoose_2.Schema({
     lastName: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
+    imgUrl: { type: String }
 }, { timestamps: true });
 const getUserByEmail = (email) => __awaiter(void 0, void 0, void 0, function* () {
     try {

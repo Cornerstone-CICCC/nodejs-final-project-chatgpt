@@ -62,9 +62,9 @@ const loginUser = async (req: Request, res: Response) => {
 
 // add/register user
 const addUser = async (req: Request, res: Response) => {
-  const { firstName, lastName, email, password, authProvider = "local" } = req.body;
+  const { firstName, lastName, email, password, imgUrl } = req.body;
 
-  if (!email || (!password && authProvider === "local")) {
+  if (!firstName || !lastName || !email || (!password)) {
     res.status(400).json({ error: "Missing required fields" });
     return
   }
@@ -83,7 +83,7 @@ const addUser = async (req: Request, res: Response) => {
       lastName,
       email,
       password: hashedPassword,
-      authProvider,
+      imgUrl,
     });
 
     const savedUser = await newUser.save();
@@ -95,8 +95,16 @@ const addUser = async (req: Request, res: Response) => {
 
 // logout
 const logout = (req: Request, res: Response) => {
-  req.session = null;
-  res.status(200).json({ message: "Logged out successfully" });
+  // req.session = null;
+  // res.status(200).json({ message: "Logged out successfully" });
+  console.log('logout', req.session)
+  try {
+    req.session = null;
+    res.status(200).json({ message: "Logged out successfully" });
+  } catch (err) {
+    console.error("Logout error:", err);
+    res.status(500).json({ error: "Logout failed" });
+  }
 };
 
 // check cookie
