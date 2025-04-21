@@ -1,0 +1,149 @@
+---
+// profile.astro
+import Layout from "../layouts/Layout.astro";
+import Header from "../components/Header.astro";
+import Menu from "../components/Menu.astro";
+---
+
+<Layout>
+  <main class="container">
+    <Header />
+    <section class="profile-section">
+      <h1>Profile</h1>
+      <div class="profile-container">
+        <div class="profile-row">
+          <i class="fa-solid fa-user"></i>
+          <label>Name</label>
+          <span id="prof-name"></span>
+        </div>
+        <div class="profile-row">
+          <i class="fa-solid fa-phone"></i>
+          <label>Phone</label>
+          <span id="prof-phone"></span>
+        </div>
+        <div class="profile-row">
+          <i class="fa-solid fa-envelope"></i>
+          <label>Email</label>
+          <span id="prof-email"></span>
+        </div>
+        <!-- <div class="profile-row">
+          <i class="fa-sharp fa-solid fa-address-card"></i>
+          <label>About</label>
+          <span>don't speak to me!</span>
+        </div> -->
+      </div>
+    </section>
+
+    <Menu />
+  </main>
+</Layout>
+
+<script type="module">
+  const name = document.querySelector("#prof-name");
+  const phone = document.querySelector("#prof-phone");
+  const email = document.querySelector("#prof-email");
+  const checkAuth = async () => {
+    const res = await fetch(`http://localhost:3500/user/check-cookie`, {
+      method: "GET",
+      credentials: "include",
+    });
+    if (!res.ok) {
+      window.location.href = "/";
+      return;
+    }
+    const data = await res.json();
+    console.log("Get User Id", data);
+    return data.userId;
+  };
+
+  // Get User Full Information
+  const getUserInfo = async (userId) => {
+    if (!userId) {
+      userId = await checkAuth();
+    }
+    const res = await fetch(`http://localhost:3500/user/${userId}`, {
+      method: "GET",
+      credentials: "include",
+    });
+    if (!res.ok) {
+      console.log("Error getting user information");
+      return;
+    }
+    const data = await res.json();
+    console.log("Get User Info", data);
+    name.innerHTML = `${data.firstName} ${data.lastName}`;
+    phone.innerHTML = `123-124-1244`;
+    email.innerHTML = `${data.email}`;
+    return data;
+  };
+  getUserInfo();
+</script>
+
+<style>
+  body {
+    min-height: 100vh;
+  }
+
+  .container {
+    margin: auto;
+    max-width: 450px;
+    height: 100%;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    scroll-behavior: smooth;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .profile-section {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-width: 95%;
+  }
+
+  .profile-section h1 {
+    font-size: 2rem;
+    padding-top: 2.2rem;
+    color: #f6ae2b;
+    text-align: center;
+    margin-bottom: 0.5rem;
+  }
+
+  .profile-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .profile-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-size: 1.1rem;
+  }
+
+  .profile-row i {
+    color: #f6ae2b;
+    font-size: 1.2rem;
+    min-width: 20px;
+  }
+
+  .profile-row label {
+    font-weight: 600;
+    color: #333;
+    min-width: 60px;
+  }
+
+  .profile-row span {
+    flex: 1;
+    color: #555;
+    word-break: break-word;
+  }
+</style>

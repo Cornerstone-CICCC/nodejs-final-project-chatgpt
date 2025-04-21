@@ -9,21 +9,16 @@ import Menu from "../components/Menu.astro";
     <Header />
     <ul class="friends-list"></ul>
     <Menu />
-    <!-- Add Friend Button -->
+    <!-- Add Group Button -->
     <button id="add-friend-button">+</button>
 
-    <!-- Add Friend Modal -->
+    <!-- Add Group Modal -->
     <dialog id="add-friend-modal" style="display: none;">
       <form method="dialog" id="add-friend-form">
-        <h2>Add a Friend</h2>
-        <input
-          type="email"
-          id="email-input"
-          name="friendEmail"
-          placeholder="Friend's email"
-          required
-        />
-        <button type="submit" class="add-btn">Add</button>
+        <h2>Create a Group</h2>
+        <input type="text" name="groupName" placeholder="Group Name" required />
+        <div id="members-container" class="checkbox-chip-list"></div>
+        <button type="submit" class="add-btn">Create</button>
       </form>
     </dialog>
   </main>
@@ -33,18 +28,17 @@ import Menu from "../components/Menu.astro";
   import { io } from "https://cdn.socket.io/4.8.1/socket.io.esm.min.js";
   const socket = io("http://localhost:3500");
 
-  // Check Cookie and Get User Id
   const checkAuth = async () => {
     const res = await fetch(`http://localhost:3500/user/check-cookie`, {
-      method: "GET",
       credentials: "include",
     });
-    if (!res.ok) {
-      window.location.href = "/";
-      return;
-    }
     const data = await res.json();
     return data.userId;
+  };
+
+  const getUsers = async () => {
+    const res = await fetch("http://localhost:3500/user");
+    return await res.json();
   };
 
   // Get User Full Information
@@ -61,43 +55,25 @@ import Menu from "../components/Menu.astro";
       return;
     }
     const data = await res.json();
+    // console.log("Get User Info", data);
     return data;
   };
 
-  // Get User Friends
   const getFriends = async (userId) => {
     if (!userId) {
       userId = await checkAuth();
     }
     const res = await fetch(`http://localhost:3500/friend/${userId}`);
     const data = await res.json();
+    console.log("Get Friends", data);
     return data;
   };
 
-  const deleteFriend = async (friendId) => {
-    const userId = await checkAuth();
-    const res = await fetch(`http://localhost:3500/friend/delete`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ userId, friendId }),
-    });
-    if (!res.ok) {
-      console.error("Error deleting friend");
-      return;
-    }
-    console.log("Friend Deleted");
-  };
-
-  // Get User Rooms
   const getRooms = async (userId) => {
-    const res = await fetch(`http://localhost:3500/room/private/${userId}`);
-    const data = await res.json();
-    return data;
+    const res = await fetch(`http://localhost:3500/room/group/${userId}`);
+    return await res.json();
   };
 
-  // Get Last Message
   const getRoomLastMessage = async (roomId) => {
     const res = await fetch(`http://localhost:3500/chat/${roomId}`);
     const data = await res.json();
@@ -108,56 +84,28 @@ import Menu from "../components/Menu.astro";
     const date = new Date(iso);
     const now = new Date();
 
-    const todayFormatted = now.toLocaleDateString("en-US", {
-      year: "2-digit",
-      month: "2-digit",
-      day: "2-digit",
-    });
+    const isToday = date.toDateString() === now.toDateString();
 
-    const formattedDate = date.toLocaleDateString("en-US", {
-      year: "2-digit",
-      month: "2-digit",
-      day: "2-digit",
-    });
-
-    const formattedTime = date.toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    });
-    if (formattedDate === todayFormatted) {
-      return formattedTime;
-    } else {
-      return formattedDate;
-    }
+    return isToday
+      ? date.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })
+      : date.toLocaleDateString("en-US");
   };
 
-  // Render Friends
-  const renderFriendList = async () => {
+  const renderGroupList = async () => {
     const userId = await checkAuth();
-    const friends = await getFriends(userId);
     const rooms = await getRooms(userId);
-
     const list = document.querySelector(".friends-list");
-    list.innerHTML = ``;
+    list.innerHTML = "";
 
-    for (const friend of friends) {
-      const matchedRoom = rooms.find(
-        (room) => room.name.includes(userId) && room.name.includes(friend._id)
-      );
+    for (const room of rooms) {
+      socket.emit("joinRoom", { roomId: room._id, username: userId });
 
-      if (!matchedRoom) return;
-
-      socket.emit("joinRoom", {
-        roomId: matchedRoom._id,
-        username: userId,
-      });
-
-      const message = await getRoomLastMessage(matchedRoom._id);
+      const message = await getRoomLastMessage(room._id);
 
       const listItem = document.createElement("li");
       listItem.classList.add("friend-item");
-      listItem.dataset.roomId = matchedRoom._id;
+      listItem.dataset.roomId = room._id;
+      console.log(message);
 
       let lastMsgText = "Start the conversation!";
       let lastMsgPrefix = "";
@@ -169,84 +117,52 @@ import Menu from "../components/Menu.astro";
             ? "You:"
             : `${message.senderId.firstName}:`;
         lastMsgText = message.message;
-        lastDate = getDate(message.createdAt);
+        lastDate = message ? getDate(message.createdAt) : "";
       }
 
       listItem.innerHTML = `
-  <a href="/${matchedRoom._id}">
-    <div class="friend-hover-wrapper">
-      <img
-        src="${friend.imgUrl ? friend.imgUrl : `https://unavatar.io/github/${friend.firstName}`}"
-        alt="${friend.firstName}"
-        class="friend-avatar"
-      />
-      <div class="friend-info-card">
-        <p><strong>Name: </strong>${friend.firstName} ${friend.lastName}</p>
-        <p><strong>Email: </strong>${friend.email}</p>
-        <p><strong>Phone: </strong>123-456-7890</p>
-        <button class="delete-friend-btn" data-id="USER_ID_AQUI">
-          Delete Friend
-        </button>
-      </div>
-    </div>
-    <div class="friend-info">
-      <span class="friend-name">${friend.firstName}</span>
-      <span class="last-message">${lastMsgPrefix} ${lastMsgText}</span>
-    </div>
-    <span class="last-date">${lastDate}</span>
-  </a>
-`;
-      const deleteBtn = listItem.querySelector(".delete-friend-btn");
-      deleteBtn.addEventListener("click", async(e) => {
-        e.preventDefault();
-        await deleteFriend(friend._id)
-        console.log(friend._id);
-        renderFriendList()
-      });
+        <a href="/${room._id}">
+          <img src="https://unavatar.io/github/${room.name}" alt="${room.name}" class="friend-avatar" />
+          <div class="friend-info">
+            <span class="friend-name">${room.name}</span>
+            <span class="last-message">${lastMsgPrefix} ${lastMsgText}</span>
+          </div>
+          <span class="last-date">${lastDate}</span>
+        </a>
+      `;
       list.appendChild(listItem);
     }
   };
 
-  renderFriendList();
+  renderGroupList();
 
-  socket.on("newMessage", async (message) => {
-    const userId = await checkAuth();
-    const userInfo = await getUserInfo(message.senderId);
-    const roomId = message.roomId;
-    const currentPath = window.location.pathname;
-    const isInRoom = currentPath === `/${roomId}`;
-    console.log(message, userInfo);
-
-    const listItem = document.querySelector(`[data-room-id="${roomId}"]`);
-    if (listItem && !isInRoom) {
-      const lastMessageSpan = listItem.querySelector(".last-message");
-      if (lastMessageSpan) {
-        lastMessageSpan.innerHTML = `
-        ${
-          message.senderId._id === userId
-            ? "You:"
-            : `${userInfo.firstName}:` || ""
-        }
-        ${message.message}
-      `;
-      }
-      listItem.classList.add("unread");
-    }
-  });
-
-  // const getUsers = async () => {
-  //   const res = await fetch(`http://localhost:3500/user`);
-  //   const data = await res.json();
-  //   console.log(data);
-  // };
-
-  // getUsers()
-
+  // Modal functionality
   const addFriendBtn = document.querySelector("#add-friend-button");
   const addFriendModal = document.querySelector("#add-friend-modal");
   const addFriendForm = document.querySelector("#add-friend-form");
+  const membersSelect = addFriendForm.querySelector('select[name="members"]');
 
-  addFriendBtn.addEventListener("click", () => {
+  addFriendBtn.addEventListener("click", async () => {
+    const users = await getFriends();
+    const membersContainer = document.getElementById("members-container");
+    membersContainer.innerHTML = "";
+    users.forEach((user) => {
+      const wrapper = document.createElement("label");
+      wrapper.className = "chip";
+
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.name = "members";
+      checkbox.value = user._id;
+
+      const span = document.createElement("span");
+      span.textContent = `${user.firstName} ${user.lastName}`;
+
+      wrapper.appendChild(checkbox);
+      wrapper.appendChild(span);
+      membersContainer.appendChild(wrapper);
+    });
+
     addFriendModal.style.display = "block";
     addFriendModal.showModal();
   });
@@ -264,79 +180,54 @@ import Menu from "../components/Menu.astro";
   addFriendForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     const formData = new FormData(addFriendForm);
-    const friendEmail = formData.get("friendEmail");
+    const groupName = formData.get("groupName");
+    const members = Array.from(
+      addFriendForm.querySelectorAll('input[name="members"]:checked')
+    ).map((input) => input.value);
 
     const userId = await checkAuth();
 
-    const res = await fetch(`http://localhost:3500/friend`, {
+    const res = await fetch("http://localhost:3500/room/group", {
       method: "POST",
+      headers: { "Content-Type": "application/json" },
       credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ userId, friendEmail }),
+      body: JSON.stringify({
+        name: groupName,
+        users: [userId, ...members],
+      }),
     });
 
     if (res.ok) {
       addFriendModal.close();
-      renderFriendList();
-      const emailInput = document.querySelector("#email-input");
-      emailInput.value = "";
+      renderGroupList();
     } else {
-      alert("Error adding friend.");
+      alert("Error creating group");
+    }
+  });
+
+  socket.on("newMessage", async (message) => {
+    const userId = await checkAuth();
+    const userInfo = await getUserInfo(message.senderId);
+    const currentPath = window.location.pathname;
+    const isInRoom = currentPath === `/${message.roomId}`;
+
+    const listItem = document.querySelector(
+      `[data-room-id="${message.roomId}"]`
+    );
+    if (listItem && !isInRoom) {
+      const lastMessageSpan = listItem.querySelector(".last-message");
+      if (lastMessageSpan) {
+        lastMessageSpan.innerHTML = `
+      ${message.senderId === userId ? "You:" : `${userInfo.firstName || "Someone"}:`}
+      ${message.message}
+    `;
+      }
+      listItem.classList.add("unread");
     }
   });
 </script>
 
 <style is:global>
-  .friend-hover-wrapper {
-    position: relative;
-    display: inline-block;
-  }
-
-  .friend-name {
-    font-weight: bold;
-    margin-top: 4px;
-  }
-
-  .friend-info-card {
-    display: none;
-    position: absolute;
-    top: 0%;
-    left: 100%;
-    width: max-content;
-    min-width: 200px;
-    background-color: #fff;
-    color: #333;
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    padding: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    z-index: 10;
-    margin-top: 8px;
-    white-space: normal;
-  }
-
-  .delete-friend-btn {
-    margin-top: 10px;
-    padding: 8px 12px;
-    background-color: #e63946;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: background-color 0.2s;
-  }
-
-  .delete-friend-btn:hover {
-    background-color: #c92333;
-  }
-
-  .friend-hover-wrapper:hover .friend-info-card {
-    display: block;
-  }
-
   body {
     min-height: 100vh;
   }
@@ -428,7 +319,6 @@ import Menu from "../components/Menu.astro";
 
   .friends-list {
     width: 100%;
-    height: 100%;
     list-style: none;
     padding: 0;
     margin: 0;
@@ -553,6 +443,42 @@ import Menu from "../components/Menu.astro";
 
   #add-friend-form input:focus {
     outline: none;
+  }
+
+  .checkbox-chip-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .chip {
+    display: flex;
+    align-items: center;
+    background-color: #fff;
+    border: 2px solid #f6ae2b;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    user-select: none;
+  }
+
+  .chip span {
+    padding: 0.4rem 0.8rem;
+  }
+
+  .chip input[type="checkbox"] {
+    display: none;
+  }
+
+  .chip input[type="checkbox"]:checked + span {
+    background-color: #f6ae2b;
+    color: white;
+    border-radius: 20px;
+    padding: 0.4rem 0.8rem;
   }
 
   .add-btn {

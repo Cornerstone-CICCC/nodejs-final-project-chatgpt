@@ -1,0 +1,14 @@
+<script>
+  const logout = async () => {
+    const res = await fetch(`http://localhost:3500/user/logout`, {
+      method: "GET",
+      credentials: "include",
+    });
+    if (!res.ok) {
+      console.error("Something went wrong");
+      return;
+    }
+    window.location.href = "/";
+  };
+  logout();
+</script>
