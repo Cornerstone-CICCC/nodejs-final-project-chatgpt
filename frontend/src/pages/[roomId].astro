@@ -1,0 +1,373 @@
+---
+import Layout from "../layouts/Layout.astro";
+const { roomId } = Astro.params;
+
+const res = await fetch(`http://localhost:3500/chat/${roomId}`);
+if (!res.ok) {
+  throw new Error("Error loading chat room");
+}
+const room = await res.json();
+console.log(room);
+---
+
+<Layout>
+  <main class="container" id="container">
+    <div class="top-half">
+      <button class="icon-button back-button" aria-label="Back"
+        ><a href="/friends">←</a></button
+      >
+      <div class="face-container">
+        <img class="face" src="openjan.svg" alt="face" />
+      </div>
+      <button class="icon-button search-button" aria-label="Search">
+        🔍
+      </button>
+    </div>
+    <ul id="messages" room-id={roomId}></ul>
+    <form id="form">
+      <input
+        type="text"
+        id="message"
+        name="message"
+        placeholder="Type your message..."
+      />
+      <button type="submit">Send</button>
+    </form>
+  </main>
+</Layout>
+<script type="module">
+  import { io } from "https://cdn.socket.io/4.8.1/socket.io.esm.min.js";
+  // socket.emit("sendMessage", {
+  //   roomId: "68014d699aba2c70401a1350",
+  //   senderId: "6801332cecfbad906d141a77",
+  //   message: "Hello Room 1!",
+  // });
+
+  const checkAuth = async () => {
+    const res = await fetch(`http://localhost:3500/user/check-cookie`, {
+      method: "GET",
+      credentials: "include",
+    });
+    if (!res.ok) {
+      window.location.href = "/";
+      return;
+    }
+    const data = await res.json();
+    // console.log("Get User Id", data);
+
+    return data.userId;
+  };
+
+  const getUserInfo = async (userId) => {
+    if (!userId) {
+      userId = await checkAuth();
+    }
+    const res = await fetch(`http://localhost:3500/user/${userId}`, {
+      method: "GET",
+      credentials: "include",
+    });
+    if (!res.ok) {
+      console.log("Error getting user information");
+      return;
+    }
+    const data = await res.json();
+    // console.log("Get User Info", data);
+    return data;
+  };
+
+  const form = document.querySelector("#form");
+  const messagesContainer = document.querySelector("#messages");
+  const roomId = messagesContainer.getAttribute("room-id");
+
+  const getRoomMessages = async () => {
+    const res = await fetch(`http://localhost:3500/chat/${roomId}`);
+    const data = await res.json();
+    return data;
+  };
+
+  getRoomMessages();
+
+  const renderMessages = async () => {
+    const userId = await checkAuth();
+    const messages = await getRoomMessages();
+    messages.forEach((message) => {
+      console.log("senderId:", message.senderId._id);
+      console.log("firstName:", message.senderId.firstName);
+      const li = document.createElement("li");
+      li.classList.add("message");
+      if (message.senderId._id !== userId) {
+        li.classList.add("message-friend");
+      } else {
+        li.classList.add("message-user");
+      }
+      li.innerHTML = `
+      <p class="message-text">
+        ${message.message}
+      </p>
+      <img src="https://unavatar.io/github/${message.senderId.firstName}" alt="" class="profile-picture" />
+    `;
+      messagesContainer.appendChild(li);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    });
+  };
+
+  renderMessages();
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const input = document.querySelector("#message");
+    const message = input.value;
+    const senderId = await checkAuth();
+    const userInfo = await getUserInfo();
+    console.log(userInfo.firstName);
+
+    socket.emit("sendMessage", {
+      roomId: `${roomId}`,
+      senderId: `${senderId}`,
+      senderFirstName: `${userInfo.firstName}`,
+      message: message,
+    });
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    input.value = "";
+  });
+
+  const socket = io("http://localhost:3500");
+
+  socket.emit("joinRoom", { roomId: roomId, username: "user" });
+
+  socket.on("newMessage", async (data) => {
+    console.log("New message:", data);
+    const userInfo = await getUserInfo(data.senderId);
+    console.log("Sender ID:", data.senderId, "User Info:", userInfo);
+
+    const li = document.createElement("li");
+    li.classList.add("message");
+    if (data.senderId !== (await checkAuth())) {
+      li.classList.add("message-friend");
+    } else {
+      li.classList.add("message-user");
+    }
+    li.innerHTML = `
+      <p class="message-text">
+        ${data.message}
+      </p>
+      <img src="https://unavatar.io/github/${userInfo.firstName}" alt="" class="profile-picture" />
+    `;
+    messagesContainer.appendChild(li);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    message.value = "";
+  });
+</script>
+<style is:global>
+  body {
+    min-height: 100vh;
+  }
+
+  .container {
+    margin: auto;
+    padding-bottom: 10px;
+    max-width: 450px;
+    height: 100vh;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    scroll-behavior: smooth;
+    /* overflow-y: scroll; */
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .top-half {
+    background-color: var(--main-color);
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    position: relative;
+  }
+
+  .top-half::after {
+    content: "";
+    width: calc(50% - 47px);
+    height: 10px;
+    position: absolute;
+    background-color: white;
+    left: 0;
+    bottom: 0;
+    border-top-right-radius: 15px 12px;
+    z-index: 20;
+  }
+  .top-half::before {
+    content: "";
+    width: calc(50% - 40.4px);
+    height: 10px;
+    position: absolute;
+    background-color: white;
+    right: 0;
+    bottom: 0;
+    border-top-left-radius: 15px 12px;
+    z-index: 20;
+  }
+
+  .face-container {
+    position: relative;
+    width: 70px;
+    height: 70px;
+    top: 30%;
+    border-radius: 50%;
+    outline: solid 11px var(--main-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    /* overflow: hidden; */
+  }
+  .face {
+    border-radius: 50%;
+    object-fit: contain;
+    object-position: 1px 18px;
+    width: 100%;
+    height: 100%;
+    background-color: #fff;
+    box-shadow: inset 0 0 9px var(--main-color);
+  }
+
+  #messages::-webkit-scrollbar {
+    display: none;
+  }
+
+  #messages {
+    width: 100%;
+    overflow-y: auto;
+    padding-inline: 0.7rem;
+    padding-bottom: 80px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.8rem;
+    margin-top: auto;
+  }
+
+  li.message {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 4px;
+    animation: fadeInUp 0.2s ease;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  li.message p {
+    min-width: 40px;
+    position: relative;
+    border-radius: 5px;
+    padding: 4px 8px;
+    text-wrap: pretty;
+    padding: 10px 14px;
+    line-height: 1.4;
+    font-size: 0.88rem;
+    border-radius: 14px;
+    max-width: 75%;
+    word-wrap: break-word;
+  }
+
+  li.message .profile-picture {
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    align-self: flex-end;
+  }
+
+  .message-user p {
+    background-color: var(--main-color);
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    margin-left: auto;
+  }
+
+  .message-text {
+    color: #fff;
+  }
+
+  .message-user p::after {
+    content: " ";
+    position: absolute;
+    bottom: -22px;
+    right: 10px;
+    width: 15px;
+    height: 15px;
+    border-right: 10px solid var(--main-color);
+    border-left: 10px solid transparent;
+    border-top: 12px solid var(--main-color);
+    border-bottom: 12px solid transparent;
+  }
+
+  li.message-friend {
+    flex-direction: row-reverse;
+  }
+
+  .message-friend p {
+    background-color: var(--secondary-color);
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    margin-right: auto;
+  }
+
+  .message-friend p::after {
+    content: " ";
+    position: absolute;
+    bottom: -22px;
+    left: 10px;
+    width: 15px;
+    height: 15px;
+    border-right: 10px solid transparent;
+    border-left: 10px solid var(--secondary-color);
+    border-top: 12px solid var(--secondary-color);
+    border-bottom: 12px solid transparent;
+  }
+
+  form {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 450px;
+    height: 40px;
+
+    input {
+      border-radius: 999999px;
+      flex-grow: 1;
+      border: 0;
+      margin-right: 8px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+      background-color: #f9f9f9;
+      padding: 10px 16px;
+    }
+    input:focus {
+      outline: none;
+    }
+  }
+  button {
+    background-color: var(--main-color);
+    border: 0;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    padding: 8px;
+    transition: background-color 0.3s ease;
+  }
+</style>
