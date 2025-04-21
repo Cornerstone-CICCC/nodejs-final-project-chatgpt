@@ -59,6 +59,16 @@ import Menu from "../components/Menu.astro";
     return data;
   };
 
+  const getFriends = async (userId) => {
+    if (!userId) {
+      userId = await checkAuth();
+    }
+    const res = await fetch(`http://localhost:3500/friend/${userId}`);
+    const data = await res.json();
+    console.log("Get Friends", data);
+    return data;
+  };
+
   const getRooms = async (userId) => {
     const res = await fetch(`http://localhost:3500/room/group/${userId}`);
     return await res.json();
@@ -97,18 +107,25 @@ import Menu from "../components/Menu.astro";
       listItem.dataset.roomId = room._id;
       console.log(message);
 
-      const lastMsg = message
-        ? `${message.senderId.firstName}: ${message.message}`
-        : "Start the conversation!";
+      let lastMsgText = "Start the conversation!";
+      let lastMsgPrefix = "";
+      let lastDate = "";
 
-      const lastDate = message ? getDate(message.createdAt) : "";
+      if (message) {
+        lastMsgPrefix =
+          message.senderId._id === userId
+            ? "You:"
+            : `${message.senderId.firstName}:`;
+        lastMsgText = message.message;
+        lastDate = message ? getDate(message.createdAt) : "";
+      }
 
       listItem.innerHTML = `
         <a href="/${room._id}">
           <img src="https://unavatar.io/github/${room.name}" alt="${room.name}" class="friend-avatar" />
           <div class="friend-info">
             <span class="friend-name">${room.name}</span>
-            <span class="last-message">${lastMsg}</span>
+            <span class="last-message">${lastMsgPrefix} ${lastMsgText}</span>
           </div>
           <span class="last-date">${lastDate}</span>
         </a>
@@ -126,7 +143,7 @@ import Menu from "../components/Menu.astro";
   const membersSelect = addFriendForm.querySelector('select[name="members"]');
 
   addFriendBtn.addEventListener("click", async () => {
-    const users = await getUsers();
+    const users = await getFriends();
     const membersContainer = document.getElementById("members-container");
     membersContainer.innerHTML = "";
     users.forEach((user) => {
@@ -193,7 +210,6 @@ import Menu from "../components/Menu.astro";
     const userInfo = await getUserInfo(message.senderId);
     const currentPath = window.location.pathname;
     const isInRoom = currentPath === `/${message.roomId}`;
-    console.log("acaban de enviar un nuevo mensaje", message);
 
     const listItem = document.querySelector(
       `[data-room-id="${message.roomId}"]`
@@ -202,7 +218,7 @@ import Menu from "../components/Menu.astro";
       const lastMessageSpan = listItem.querySelector(".last-message");
       if (lastMessageSpan) {
         lastMessageSpan.innerHTML = `
-      ${message.senderId === userId ? "You:" : `${userInfo?.firstName || "Someone"}:`}
+      ${message.senderId === userId ? "You:" : `${userInfo.firstName || "Someone"}:`}
       ${message.message}
     `;
       }

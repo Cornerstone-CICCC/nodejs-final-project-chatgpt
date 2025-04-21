@@ -81,9 +81,10 @@ console.log(room);
   const renderMessages = async () => {
     const userId = await checkAuth();
     const messages = await getRoomMessages();
-    messages.forEach((message) => {
+    messages.forEach(async(message) => {
       console.log("senderId:", message.senderId._id);
       console.log("firstName:", message.senderId.firstName);
+      const userInfo = await getUserInfo(message.senderId._id)
       const li = document.createElement("li");
       li.classList.add("message");
       if (message.senderId._id !== userId) {
@@ -95,7 +96,7 @@ console.log(room);
       <p class="message-text">
         ${message.message}
       </p>
-      <img src="https://unavatar.io/github/${message.senderId.firstName}" alt="" class="profile-picture" />
+      <img src="${userInfo.imgUrl || `https://unavatar.io/github/${message.senderId.firstName}`}" alt="${message.senderId.firstName}" class="profile-picture" />
     `;
       messagesContainer.appendChild(li);
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
@@ -142,7 +143,7 @@ console.log(room);
       <p class="message-text">
         ${data.message}
       </p>
-      <img src="https://unavatar.io/github/${userInfo.firstName}" alt="" class="profile-picture" />
+      <img src="${userInfo.imgUrl || `https://unavatar.io/github/${userInfo.firstName}`}" alt="${userInfo.firstName}" class="profile-picture" />
     `;
     messagesContainer.appendChild(li);
     messagesContainer.scrollTop = messagesContainer.scrollHeight;

@@ -19,25 +19,49 @@ import Layout from "../layouts/Layout.astro";
     </div>
     <h1>Sign Up</h1>
     <form class="login-container" method="POST" id="signup">
-      <input required type="text" id="signup-firstname" name="firstName" placeholder="First Name" />
-      <input required type="text" id="signup-lastname" name="lastName" placeholder="Last Name" />
-      <input required type="text" id="signup-email" name="email" placeholder="Email" />
-      <input required type="password" name="password" id="signup-password" placeholder="Password" />
-      <!-- <input
+      <input
+        required
+        type="text"
+        id="signup-firstname"
+        name="firstName"
+        placeholder="First Name"
+      />
+      <input
+        required
+        type="text"
+        id="signup-lastname"
+        name="lastName"
+        placeholder="Last Name"
+      />
+      <input
+        required
+        type="text"
+        id="signup-email"
+        name="email"
+        placeholder="Email"
+      />
+      <input
+        required
+        type="password"
+        name="password"
+        id="signup-password"
+        placeholder="Password"
+      />
+      <input
         type="url"
-        name="image"
+        name="imgUrl"
         id="url-image"
         placeholder="URL of your photo"
-      /> -->
+      />
       <button id="signup-btn" type="submit">Sign up</button>
     </form>
   </main>
 </Layout>
 
 <script type="module">
-  const form = document.querySelector('#signup')
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault()
+  const form = document.querySelector("#signup");
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
     const formData = new FormData(e.target);
     const formObj = Object.fromEntries(formData.entries()); // Converts form data to JS object
@@ -53,17 +77,17 @@ import Layout from "../layouts/Layout.astro";
       console.error("Something went wrong");
       return;
     }
-    alert('User signed up succesfully')
+    alert("User signed up succesfully");
     window.location.href = "/";
   });
-//   const imginput = document.querySelector("#url-image") as HTMLInputElement;
-//   const userimg = document.querySelector(".face") as HTMLInputElement;
-//   imginput.addEventListener("input", () => {
-//     const url = imginput.value.trim();
-//     if (url) {
-//       userimg.src = url;
-//     }
-//   });
+  //   const imginput = document.querySelector("#url-image") as HTMLInputElement;
+  //   const userimg = document.querySelector(".face") as HTMLInputElement;
+  //   imginput.addEventListener("input", () => {
+  //     const url = imginput.value.trim();
+  //     if (url) {
+  //       userimg.src = url;
+  //     }
+  //   });
 </script>
 
 <style>

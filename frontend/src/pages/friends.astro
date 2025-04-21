@@ -18,6 +18,7 @@ import Menu from "../components/Menu.astro";
         <h2>Add a Friend</h2>
         <input
           type="email"
+          id="email-input"
           name="friendEmail"
           placeholder="Friend's email"
           required
@@ -43,7 +44,6 @@ import Menu from "../components/Menu.astro";
       return;
     }
     const data = await res.json();
-    console.log("Get User Id", data);
     return data.userId;
   };
 
@@ -61,7 +61,6 @@ import Menu from "../components/Menu.astro";
       return;
     }
     const data = await res.json();
-    // console.log("Get User Info", data);
     return data;
   };
 
@@ -72,17 +71,29 @@ import Menu from "../components/Menu.astro";
     }
     const res = await fetch(`http://localhost:3500/friend/${userId}`);
     const data = await res.json();
-    console.log("Get Friends", data);
     return data;
   };
 
-  getFriends();
+  const deleteFriend = async (friendId) => {
+    const userId = await checkAuth();
+    const res = await fetch(`http://localhost:3500/friend/delete`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ userId, friendId }),
+    });
+    if (!res.ok) {
+      console.error("Error deleting friend");
+      return;
+    }
+    console.log("Friend Deleted");
+  };
 
   // Get User Rooms
   const getRooms = async (userId) => {
     const res = await fetch(`http://localhost:3500/room/private/${userId}`);
     const data = await res.json();
-    console.log(`Get Private Rooms for ${userId}`, data);
     return data;
   };
 
@@ -162,19 +173,36 @@ import Menu from "../components/Menu.astro";
       }
 
       listItem.innerHTML = `
-        <a href="/${matchedRoom._id}">
-          <img
-            src="https://unavatar.io/github/${friend.firstName}"
-            alt="${friend.firstName}"
-            class="friend-avatar"
-          />
-          <div class="friend-info">
-            <span class="friend-name">${friend.firstName}</span>
-            <span class="last-message">${lastMsgPrefix} ${lastMsgText}</span>
-          </div>
-          <span class="last-date">${lastDate}</span>
-        </a>
-      `;
+  <a href="/${matchedRoom._id}">
+    <div class="friend-hover-wrapper">
+      <img
+        src="${friend.imgUrl ? friend.imgUrl : `https://unavatar.io/github/${friend.firstName}`}"
+        alt="${friend.firstName}"
+        class="friend-avatar"
+      />
+      <div class="friend-info-card">
+        <p><strong>Name: </strong>${friend.firstName} ${friend.lastName}</p>
+        <p><strong>Email: </strong>${friend.email}</p>
+        <p><strong>Phone: </strong>123-456-7890</p>
+        <button class="delete-friend-btn" data-id="USER_ID_AQUI">
+          Delete Friend
+        </button>
+      </div>
+    </div>
+    <div class="friend-info">
+      <span class="friend-name">${friend.firstName}</span>
+      <span class="last-message">${lastMsgPrefix} ${lastMsgText}</span>
+    </div>
+    <span class="last-date">${lastDate}</span>
+  </a>
+`;
+      const deleteBtn = listItem.querySelector(".delete-friend-btn");
+      deleteBtn.addEventListener("click", async(e) => {
+        e.preventDefault();
+        await deleteFriend(friend._id)
+        console.log(friend._id);
+        renderFriendList()
+      });
       list.appendChild(listItem);
     }
   };
@@ -251,7 +279,9 @@ import Menu from "../components/Menu.astro";
 
     if (res.ok) {
       addFriendModal.close();
-      renderFriendList(); // Refresh list
+      renderFriendList();
+      const emailInput = document.querySelector("#email-input");
+      emailInput.value = "";
     } else {
       alert("Error adding friend.");
     }
@@ -259,6 +289,54 @@ import Menu from "../components/Menu.astro";
 </script>
 
 <style is:global>
+  .friend-hover-wrapper {
+    position: relative;
+    display: inline-block;
+  }
+
+  .friend-name {
+    font-weight: bold;
+    margin-top: 4px;
+  }
+
+  .friend-info-card {
+    display: none;
+    position: absolute;
+    top: 0%;
+    left: 100%;
+    width: max-content;
+    min-width: 200px;
+    background-color: #fff;
+    color: #333;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 10;
+    margin-top: 8px;
+    white-space: normal;
+  }
+
+  .delete-friend-btn {
+    margin-top: 10px;
+    padding: 8px 12px;
+    background-color: #e63946;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.2s;
+  }
+
+  .delete-friend-btn:hover {
+    background-color: #c92333;
+  }
+
+  .friend-hover-wrapper:hover .friend-info-card {
+    display: block;
+  }
+
   body {
     min-height: 100vh;
   }
@@ -350,6 +428,7 @@ import Menu from "../components/Menu.astro";
 
   .friends-list {
     width: 100%;
+    height: 100%;
     list-style: none;
     padding: 0;
     margin: 0;
