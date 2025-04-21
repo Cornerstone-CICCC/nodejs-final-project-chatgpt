@@ -1,0 +1,168 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout>
+    <main class="main-container">
+        <div class="container">
+            <div class="top-half">
+                <div class="face-container">
+                    <img src="openjan.png" alt="face" />
+                </div>
+            </div>
+        </div>
+        <div class="bottom-container">
+            <h1>Profile</h1>
+            <form action="" method="post" id="login">
+                <div class="profile-container">
+                    <div class="profile-name">
+                        <i class="fa-solid fa-user"></i>
+                        <label for="">Name</label>
+                        <span>blahblah</span>
+                    </div>
+
+                    <div class="profile-phone">
+                        <i class="fa-solid fa-phone"></i>
+                        <label for="">Phone</label>
+                        <span>shutup</span>
+                    </div>
+
+                    <div class="profile-email">
+                        <i class="fa-solid fa-envelope"></i>
+                        <label for="">Email</label>
+                        <span
+                            >nono@nocodeing.comoooooooooooooooooooooooooooooooooooooooooooo</span
+                        >
+                    </div>
+
+                    <div class="profile-about">
+                        <i class="fa-sharp fa-solid fa-address-card"></i>
+                        <label for="">About</label>
+                        <span>don't speak to me!</span>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </main>
+</Layout>
+
+<script>
+    const form = document.querySelector("#login") as HTMLFormElement;
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target as HTMLFormElement);
+        const formObject = Object.fromEntries(formData.entries());
+
+        const res = await fetch(`http://localhost:3500/login`, {
+            method: "post",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(formObject),
+        });
+
+        if (res.ok) {
+            window.location.href = "/profile";
+        }
+        const response = await res.json();
+        const errorContainer = document.getElementById(
+            "error-container",
+        ) as HTMLFormElement;
+        errorContainer.style.display = "block";
+    });
+    const users = async () => {
+        const res = await fetch("http://localhost:3500/user");
+        const data = await res.json();
+        console.log(data);
+    };
+    users();
+</script>
+
+<style>
+    body {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .main-container {
+        min-width: 400px;
+        max-width: 450px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    .profile-container > div {
+        display: flex;
+        align-items: center;
+        gap: 1rem; /* icon/label 和 span 之間的間距 */
+    }
+    .profile-container i {
+        min-width: 20px;
+        text-align: center;
+    }
+
+    .profile-container label {
+        width: 60px; /* 可調整 label 寬度對齊 */
+    }
+    .profile-container span {
+        flex: 1;
+    }
+
+    .container {
+        height: 20vh;
+        margin-bottom: 3rem;
+    }
+    .top-half {
+        background-color: #f6ae2b;
+        width: 100%;
+        height: 15vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+    }
+    .face-container {
+        box-sizing: initial;
+        position: relative;
+        width: 150px;
+        height: 150px;
+        top: 40%;
+        border-radius: 50%;
+        border: solid 15px #f6ae2b;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .face-container img {
+        border-radius: 50%;
+        object-fit: cover;
+        width: 150px;
+        height: 150px;
+    }
+    .bottom-container {
+        margin-top: 2rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        font-size: 1.2rem;
+    }
+    .profile-container {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    h1 {
+        color: #f6ae2b;
+        padding: 1rem;
+    }
+    .profile-email span {
+        display: inline-block;
+        word-wrap: break-word;
+        word-break: break-all;
+        white-space: normal;
+        max-width: 100%;
+    }
+</style>
