@@ -188,22 +188,12 @@ import Menu from "../components/Menu.astro";
     }
   });
 
-  document.querySelector("#logout").addEventListener("click", async () => {
-    const res = await fetch(`http://localhost:3500/user/logout`, {
-      method: "GET",
-      credentials: "include",
-    });
-    if (res.ok) {
-      window.location.href = "/";
-    }
-  });
-
   socket.on("newMessage", async (message) => {
     const userId = await checkAuth();
     const userInfo = await getUserInfo(message.senderId);
     const currentPath = window.location.pathname;
     const isInRoom = currentPath === `/${message.roomId}`;
-    console.log(message);
+    console.log("acaban de enviar un nuevo mensaje", message);
 
     const listItem = document.querySelector(
       `[data-room-id="${message.roomId}"]`
@@ -212,13 +202,9 @@ import Menu from "../components/Menu.astro";
       const lastMessageSpan = listItem.querySelector(".last-message");
       if (lastMessageSpan) {
         lastMessageSpan.innerHTML = `
-        ${
-          message.senderId._id === userId
-            ? "You:"
-            : `${userInfo.firstName}:` || ""
-        }
-        ${message.message}
-      `;
+      ${message.senderId === userId ? "You:" : `${userInfo?.firstName || "Someone"}:`}
+      ${message.message}
+    `;
       }
       listItem.classList.add("unread");
     }

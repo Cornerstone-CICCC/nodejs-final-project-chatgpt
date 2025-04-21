@@ -8,26 +8,23 @@ import Menu from "../components/Menu.astro";
 <Layout>
   <main class="container">
     <Header />
-
     <section class="profile-section">
       <h1>Profile</h1>
       <div class="profile-container">
         <div class="profile-row">
           <i class="fa-solid fa-user"></i>
           <label>Name</label>
-          <span>blahblah</span>
+          <span id="prof-name"></span>
         </div>
         <div class="profile-row">
           <i class="fa-solid fa-phone"></i>
           <label>Phone</label>
-          <span>shutup</span>
+          <span id="prof-phone"></span>
         </div>
         <div class="profile-row">
           <i class="fa-solid fa-envelope"></i>
           <label>Email</label>
-          <span
-            >nono@nocodeing.com</span
-          >
+          <span id="prof-email"></span>
         </div>
         <!-- <div class="profile-row">
           <i class="fa-sharp fa-solid fa-address-card"></i>
@@ -40,6 +37,47 @@ import Menu from "../components/Menu.astro";
     <Menu />
   </main>
 </Layout>
+
+<script type="module">
+  const name = document.querySelector("#prof-name");
+  const phone = document.querySelector("#prof-phone");
+  const email = document.querySelector("#prof-email");
+  const checkAuth = async () => {
+    const res = await fetch(`http://localhost:3500/user/check-cookie`, {
+      method: "GET",
+      credentials: "include",
+    });
+    if (!res.ok) {
+      window.location.href = "/";
+      return;
+    }
+    const data = await res.json();
+    console.log("Get User Id", data);
+    return data.userId;
+  };
+
+  // Get User Full Information
+  const getUserInfo = async (userId) => {
+    if (!userId) {
+      userId = await checkAuth();
+    }
+    const res = await fetch(`http://localhost:3500/user/${userId}`, {
+      method: "GET",
+      credentials: "include",
+    });
+    if (!res.ok) {
+      console.log("Error getting user information");
+      return;
+    }
+    const data = await res.json();
+    console.log("Get User Info", data);
+    name.innerHTML = `${data.firstName} ${data.lastName}`;
+    phone.innerHTML = `123-124-1244`;
+    email.innerHTML = `${data.email}`;
+    return data;
+  };
+  getUserInfo();
+</script>
 
 <style>
   body {

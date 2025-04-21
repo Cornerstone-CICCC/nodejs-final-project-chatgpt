@@ -214,23 +214,6 @@ import Menu from "../components/Menu.astro";
 
   // getUsers()
 
-  // LOG OUT
-  const logout = document.querySelector("#logout");
-
-  logout.addEventListener("click", async () => {
-    console.log("Click");
-
-    const res = await fetch(`http://localhost:3500/user/logout`, {
-      method: "GET",
-      credentials: "include",
-    });
-    if (!res.ok) {
-      console.error("Something went wrong");
-      return;
-    }
-    window.location.href = "/";
-  });
-
   const addFriendBtn = document.querySelector("#add-friend-button");
   const addFriendModal = document.querySelector("#add-friend-modal");
   const addFriendForm = document.querySelector("#add-friend-form");
