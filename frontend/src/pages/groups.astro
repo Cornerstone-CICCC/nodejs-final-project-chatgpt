@@ -1,18 +1,14 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import Header from "../components/Header.astro";
+import Menu from "../components/Menu.astro";
 ---
 
 <Layout>
   <main class="container" id="container">
-    <div class="top-half">
-      <button id="logout">Logout</button>
-      <div class="face-container">
-        <img class="face" src="openjan.svg" alt="face" />
-      </div>
-    </div>
-
+    <Header />
     <ul class="friends-list"></ul>
-
+    <Menu />
     <!-- Add Group Button -->
     <button id="add-friend-button">+</button>
 
@@ -236,7 +232,6 @@ import Layout from "../layouts/Layout.astro";
 
   .container {
     margin: auto;
-    padding-bottom: 10px;
     max-width: 450px;
     height: 100%;
     background: #fff;
@@ -244,7 +239,6 @@ import Layout from "../layouts/Layout.astro";
     border-radius: 4px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     scroll-behavior: smooth;
-    /* overflow-y: scroll; */
     position: relative;
     display: flex;
     flex-direction: column;
@@ -472,7 +466,7 @@ import Layout from "../layouts/Layout.astro";
 
   .chip span {
     padding: 0.4rem 0.8rem;
-}
+  }
 
   .chip input[type="checkbox"] {
     display: none;

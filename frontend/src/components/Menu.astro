@@ -1,34 +1,41 @@
 <div class="menu-container">
-    <div class="friends-btn">
-        <a href="/friends"><i class="fa-solid fa-list-ul"></i><span>Friends</span></a>
-    </div>
-    <div class="groups-btn">
-        <a href="/groups"><i class="fa-solid fa-user-group"></i><span>Group</span></a>
-    </div>
-    <div class="profile-btn">
-        <a href="/profile"><i class="fa-solid fa-user"></i><span>Profile</span></a>
-    </div>
-    <div class="logout-btn">
-        <a href="/"><i class="fa-solid fa-power-off"></i><span>Log out</span></a>
-    </div>
+  <div class="friends-btn">
+    <a href="/friends"
+      ><i class="fa-solid fa-list-ul"></i><span>Friends</span></a
+    >
+  </div>
+  <div class="groups-btn">
+    <a href="/groups"
+      ><i class="fa-solid fa-user-group"></i><span>Groups</span></a
+    >
+  </div>
+  <div class="profile-btn">
+    <a href="/profile"><i class="fa-solid fa-user"></i><span>Profile</span></a>
+  </div>
+  <div class="logout-btn">
+    <a href="/"><i class="fa-solid fa-power-off"></i><span>Log out</span></a>
+  </div>
 </div>
 
 <style>
-    .menu-container{
-        width: 100%;
-        background-color: var(--main-color);
-        display: flex;
-        justify-content: space-around;
-        align-items: center;
-    }
-    .menu-container> div, a{
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        color: #fff;
-    }
-    .menu-container a{
-        padding: 0.5rem;
-    }
+  .menu-container {
+    width: 100%;
+    padding-top: 10px;
+    background-color: var(--main-color);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-top: auto;
+  }
+  .menu-container > div a span{
+    font-size: 0.89rem;
+  }
+  .menu-container > div,
+  a {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+  }
 </style>
