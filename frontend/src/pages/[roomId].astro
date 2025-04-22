@@ -80,11 +80,11 @@ console.log(room);
 
   const renderMessages = async () => {
     const userId = await checkAuth();
-    const messages = await getRoomMessages();
-    messages.forEach(async(message) => {
-      console.log("senderId:", message.senderId._id);
-      console.log("firstName:", message.senderId.firstName);
-      const userInfo = await getUserInfo(message.senderId._id)
+    const messages = (await getRoomMessages()).sort(
+      (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+    );
+    for (const message of messages) {
+      const userInfo = await getUserInfo(message.senderId._id);
       const li = document.createElement("li");
       li.classList.add("message");
       if (message.senderId._id !== userId) {
@@ -93,14 +93,14 @@ console.log(room);
         li.classList.add("message-user");
       }
       li.innerHTML = `
-      <p class="message-text">
-        ${message.message}
-      </p>
-      <img src="${userInfo.imgUrl || `https://unavatar.io/github/${message.senderId.firstName}`}" alt="${message.senderId.firstName}" class="profile-picture" />
-    `;
+    <p class="message-text">
+      ${message.message}
+    </p>
+    <img src="${userInfo.imgUrl || `https://unavatar.io/github/${message.senderId.firstName}`}" alt="${message.senderId.firstName}" class="profile-picture" />
+  `;
       messagesContainer.appendChild(li);
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    });
+    }
   };
 
   renderMessages();
