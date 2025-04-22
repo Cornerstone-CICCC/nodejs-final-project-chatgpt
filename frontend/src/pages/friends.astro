@@ -1,0 +1,567 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Header from "../components/Header.astro";
+import Menu from "../components/Menu.astro";
+---
+
+<Layout>
+  <main class="container" id="container">
+    <Header />
+    <ul class="friends-list"></ul>
+    <Menu />
+    <!-- Add Friend Button -->
+    <button id="add-friend-button">+</button>
+
+    <!-- Add Friend Modal -->
+    <dialog id="add-friend-modal" style="display: none;">
+      <form method="dialog" id="add-friend-form">
+        <h2>Add a Friend</h2>
+        <input
+          type="email"
+          id="email-input"
+          name="friendEmail"
+          placeholder="Friend's email"
+          required
+        />
+        <button type="submit" class="add-btn">Add</button>
+      </form>
+    </dialog>
+  </main>
+</Layout>
+
+<script type="module">
+  import { io } from "https://cdn.socket.io/4.8.1/socket.io.esm.min.js";
+  const socket = io("http://localhost:3500");
+
+  // Check Cookie and Get User Id
+  const checkAuth = async () => {
+    const res = await fetch(`http://localhost:3500/user/check-cookie`, {
+      method: "GET",
+      credentials: "include",
+    });
+    if (!res.ok) {
+      window.location.href = "/";
+      return;
+    }
+    const data = await res.json();
+    return data.userId;
+  };
+
+  // Get User Full Information
+  const getUserInfo = async (userId) => {
+    if (!userId) {
+      userId = await checkAuth();
+    }
+    const res = await fetch(`http://localhost:3500/user/${userId}`, {
+      method: "GET",
+      credentials: "include",
+    });
+    if (!res.ok) {
+      console.log("Error getting user information");
+      return;
+    }
+    const data = await res.json();
+    return data;
+  };
+
+  // Get User Friends
+  const getFriends = async (userId) => {
+    if (!userId) {
+      userId = await checkAuth();
+    }
+    const res = await fetch(`http://localhost:3500/friend/${userId}`);
+    const data = await res.json();
+    return data;
+  };
+
+  const deleteFriend = async (friendId) => {
+    const userId = await checkAuth();
+    const res = await fetch(`http://localhost:3500/friend/delete`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ userId, friendId }),
+    });
+    if (!res.ok) {
+      console.error("Error deleting friend");
+      return;
+    }
+    console.log("Friend Deleted");
+  };
+
+  // Get User Rooms
+  const getRooms = async (userId) => {
+    const res = await fetch(`http://localhost:3500/room/private/${userId}`);
+    const data = await res.json();
+    return data;
+  };
+
+  // Get Last Message
+  const getRoomLastMessage = async (roomId) => {
+    const res = await fetch(`http://localhost:3500/chat/${roomId}`);
+    const data = await res.json();
+    return data[data.length - 1];
+  };
+
+  const getDate = (iso) => {
+    const date = new Date(iso);
+    const now = new Date();
+
+    const todayFormatted = now.toLocaleDateString("en-US", {
+      year: "2-digit",
+      month: "2-digit",
+      day: "2-digit",
+    });
+
+    const formattedDate = date.toLocaleDateString("en-US", {
+      year: "2-digit",
+      month: "2-digit",
+      day: "2-digit",
+    });
+
+    const formattedTime = date.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+    if (formattedDate === todayFormatted) {
+      return formattedTime;
+    } else {
+      return formattedDate;
+    }
+  };
+
+  // Render Friends
+  const renderFriendList = async () => {
+    const userId = await checkAuth();
+    const friends = await getFriends(userId);
+    const rooms = await getRooms(userId);
+
+    const list = document.querySelector(".friends-list");
+    list.innerHTML = ``;
+
+    for (const friend of friends) {
+      const matchedRoom = rooms.find(
+        (room) => room.name.includes(userId) && room.name.includes(friend._id)
+      );
+
+      if (!matchedRoom) return;
+
+      socket.emit("joinRoom", {
+        roomId: matchedRoom._id,
+        username: userId,
+      });
+
+      const message = await getRoomLastMessage(matchedRoom._id);
+
+      const listItem = document.createElement("li");
+      listItem.classList.add("friend-item");
+      listItem.dataset.roomId = matchedRoom._id;
+
+      let lastMsgText = "Start the conversation!";
+      let lastMsgPrefix = "";
+      let lastDate = "";
+
+      if (message) {
+        lastMsgPrefix =
+          message.senderId._id === userId
+            ? "You:"
+            : `${message.senderId.firstName}:`;
+        lastMsgText = message.message;
+        lastDate = getDate(message.createdAt);
+      }
+
+      listItem.innerHTML = `
+  <a href="/${matchedRoom._id}">
+    <div class="friend-hover-wrapper">
+      <img
+        src="${friend.imgUrl ? friend.imgUrl : `https://unavatar.io/github/${friend.firstName}`}"
+        alt="${friend.firstName}"
+        class="friend-avatar"
+      />
+      <div class="friend-info-card">
+        <p><strong>Name: </strong>${friend.firstName} ${friend.lastName}</p>
+        <p><strong>Email: </strong>${friend.email}</p>
+        <p><strong>Phone: </strong>123-456-7890</p>
+        <button class="delete-friend-btn" data-id="USER_ID_AQUI">
+          Delete Friend
+        </button>
+      </div>
+    </div>
+    <div class="friend-info">
+      <span class="friend-name">${friend.firstName}</span>
+      <span class="last-message">${lastMsgPrefix} ${lastMsgText}</span>
+    </div>
+    <span class="last-date">${lastDate}</span>
+  </a>
+`;
+      const deleteBtn = listItem.querySelector(".delete-friend-btn");
+      deleteBtn.addEventListener("click", async(e) => {
+        e.preventDefault();
+        await deleteFriend(friend._id)
+        console.log(friend._id);
+        renderFriendList()
+      });
+      list.appendChild(listItem);
+    }
+  };
+
+  renderFriendList();
+
+  socket.on("newMessage", async (message) => {
+    const userId = await checkAuth();
+    const userInfo = await getUserInfo(message.senderId);
+    const roomId = message.roomId;
+    const currentPath = window.location.pathname;
+    const isInRoom = currentPath === `/${roomId}`;
+    console.log(message, userInfo);
+
+    const listItem = document.querySelector(`[data-room-id="${roomId}"]`);
+    if (listItem && !isInRoom) {
+      const lastMessageSpan = listItem.querySelector(".last-message");
+      if (lastMessageSpan) {
+        lastMessageSpan.innerHTML = `
+        ${
+          message.senderId._id === userId
+            ? "You:"
+            : `${userInfo.firstName}:` || ""
+        }
+        ${message.message}
+      `;
+      }
+      listItem.classList.add("unread");
+    }
+  });
+
+  // const getUsers = async () => {
+  //   const res = await fetch(`http://localhost:3500/user`);
+  //   const data = await res.json();
+  //   console.log(data);
+  // };
+
+  // getUsers()
+
+  const addFriendBtn = document.querySelector("#add-friend-button");
+  const addFriendModal = document.querySelector("#add-friend-modal");
+  const addFriendForm = document.querySelector("#add-friend-form");
+
+  addFriendBtn.addEventListener("click", () => {
+    addFriendModal.style.display = "block";
+    addFriendModal.showModal();
+  });
+
+  addFriendModal.addEventListener("close", () => {
+    addFriendModal.style.display = "none";
+  });
+
+  addFriendModal.addEventListener("click", (e) => {
+    if (e.target === addFriendModal) {
+      addFriendModal.close();
+    }
+  });
+
+  addFriendForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const formData = new FormData(addFriendForm);
+    const friendEmail = formData.get("friendEmail");
+
+    const userId = await checkAuth();
+
+    const res = await fetch(`http://localhost:3500/friend`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ userId, friendEmail }),
+    });
+
+    if (res.ok) {
+      addFriendModal.close();
+      renderFriendList();
+      const emailInput = document.querySelector("#email-input");
+      emailInput.value = "";
+    } else {
+      alert("Error adding friend.");
+    }
+  });
+</script>
+
+<style is:global>
+  .friend-hover-wrapper {
+    position: relative;
+    display: inline-block;
+  }
+
+  .friend-name {
+    font-weight: bold;
+    margin-top: 4px;
+  }
+
+  .friend-info-card {
+    display: none;
+    position: absolute;
+    top: 0%;
+    left: 100%;
+    width: max-content;
+    min-width: 200px;
+    background-color: #fff;
+    color: #333;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 10;
+    margin-top: 8px;
+    white-space: normal;
+  }
+
+  .delete-friend-btn {
+    margin-top: 10px;
+    padding: 8px 12px;
+    background-color: #e63946;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.2s;
+  }
+
+  .delete-friend-btn:hover {
+    background-color: #c92333;
+  }
+
+  .friend-hover-wrapper:hover .friend-info-card {
+    display: block;
+  }
+
+  body {
+    min-height: 100vh;
+  }
+
+  .container {
+    margin: auto;
+    max-width: 450px;
+    height: 100%;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    scroll-behavior: smooth;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .top-half {
+    background-color: var(--main-color);
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    justify-items: center;
+    align-items: flex-end;
+    position: relative;
+  }
+
+  .top-half::after {
+    content: "";
+    width: calc(50% - 44px);
+    height: 10px;
+    position: absolute;
+    background-color: white;
+    left: 0;
+    bottom: 0;
+    border-top-right-radius: 15px 12px;
+    z-index: 20;
+  }
+  .top-half::before {
+    content: "";
+    width: calc(50% - 44px);
+    height: 10px;
+    position: absolute;
+    background-color: white;
+    right: 0;
+    bottom: 0;
+    border-top-left-radius: 15px 12px;
+    z-index: 20;
+  }
+
+  .face-container {
+    position: relative;
+    width: 70px;
+    height: 70px;
+    top: 30%;
+    border-radius: 50%;
+    outline: solid 11px var(--main-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    /* overflow: hidden; */
+  }
+
+  #logout {
+    position: absolute;
+    z-index: 20;
+    background-color: white;
+    right: 5px;
+    top: 5px;
+    cursor: pointer;
+  }
+
+  .face {
+    border-radius: 50%;
+    object-fit: contain;
+    object-position: 1px 18px;
+    width: 100%;
+    height: 100%;
+    background-color: #fff;
+    box-shadow: inset 0 0 9px var(--main-color);
+  }
+
+  .friends-list::-webkit-scrollbar {
+    display: none;
+  }
+
+  .friends-list {
+    width: 100%;
+    height: 100%;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    overflow-y: scroll;
+  }
+
+  .friend-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px;
+    /* background-color: #f9f9f9; */
+    transition: background-color 0.2s;
+    cursor: pointer;
+    position: relative;
+    justify-content: flex-start;
+  }
+
+  .friend-item a {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    /* background-color: #f9f9f9; */
+    position: relative;
+    justify-content: flex-start;
+  }
+
+  .friend-item:hover {
+    background-color: #ececec;
+  }
+
+  .friend-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+  }
+
+  .friend-name {
+    font-weight: 500;
+    font-size: 1rem;
+  }
+
+  .friend-info {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .last-message {
+    color: gray;
+    font-size: 0.9rem;
+    margin-top: 2px;
+    max-width: 250px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .friend-item.unread .last-message {
+    color: #000;
+    font-weight: 500;
+  }
+
+  .last-date {
+    margin-left: auto;
+    font-size: 0.75rem;
+    color: gray;
+    align-self: flex-start;
+  }
+
+  #add-friend-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 3.5rem;
+    height: 3.5rem;
+    background-color: #f6ae2b;
+    color: white;
+    font-size: 2rem;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+  }
+
+  #add-friend-modal {
+    border: none;
+    margin: auto;
+    border-radius: 10px;
+    max-width: 300px;
+    width: 90%;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    background: white;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  }
+
+  #add-friend-form {
+    display: flex;
+    flex-direction: column;
+    padding: 2rem;
+    gap: 1rem;
+  }
+
+  #add-friend-form h2 {
+    color: #f6ae2b;
+    font-weight: 600;
+  }
+
+  #add-friend-form input {
+    padding: 0.9rem 0.5rem;
+    border: solid 2px #f6ae2b;
+    border-radius: 10px;
+    height: 1.5rem;
+  }
+
+  #add-friend-form input:focus {
+    outline: none;
+  }
+
+  .add-btn {
+    border-radius: 20px;
+    height: 2rem;
+    font-size: 1.1rem;
+    border: solid 4px #f6ae2b;
+    background-color: #f6ae2b;
+    color: white;
+    cursor: pointer;
+  }
+</style>

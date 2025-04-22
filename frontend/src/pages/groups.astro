@@ -1,0 +1,493 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Header from "../components/Header.astro";
+import Menu from "../components/Menu.astro";
+---
+
+<Layout>
+  <main class="container" id="container">
+    <Header />
+    <ul class="friends-list"></ul>
+    <Menu />
+    <!-- Add Group Button -->
+    <button id="add-friend-button">+</button>
+
+    <!-- Add Group Modal -->
+    <dialog id="add-friend-modal" style="display: none;">
+      <form method="dialog" id="add-friend-form">
+        <h2>Create a Group</h2>
+        <input type="text" name="groupName" placeholder="Group Name" required />
+        <div id="members-container" class="checkbox-chip-list"></div>
+        <button type="submit" class="add-btn">Create</button>
+      </form>
+    </dialog>
+  </main>
+</Layout>
+
+<script type="module">
+  import { io } from "https://cdn.socket.io/4.8.1/socket.io.esm.min.js";
+  const socket = io("http://localhost:3500");
+
+  const checkAuth = async () => {
+    const res = await fetch(`http://localhost:3500/user/check-cookie`, {
+      credentials: "include",
+    });
+    const data = await res.json();
+    return data.userId;
+  };
+
+  const getUsers = async () => {
+    const res = await fetch("http://localhost:3500/user");
+    return await res.json();
+  };
+
+  // Get User Full Information
+  const getUserInfo = async (userId) => {
+    if (!userId) {
+      userId = await checkAuth();
+    }
+    const res = await fetch(`http://localhost:3500/user/${userId}`, {
+      method: "GET",
+      credentials: "include",
+    });
+    if (!res.ok) {
+      console.log("Error getting user information");
+      return;
+    }
+    const data = await res.json();
+    // console.log("Get User Info", data);
+    return data;
+  };
+
+  const getFriends = async (userId) => {
+    if (!userId) {
+      userId = await checkAuth();
+    }
+    const res = await fetch(`http://localhost:3500/friend/${userId}`);
+    const data = await res.json();
+    console.log("Get Friends", data);
+    return data;
+  };
+
+  const getRooms = async (userId) => {
+    const res = await fetch(`http://localhost:3500/room/group/${userId}`);
+    return await res.json();
+  };
+
+  const getRoomLastMessage = async (roomId) => {
+    const res = await fetch(`http://localhost:3500/chat/${roomId}`);
+    const data = await res.json();
+    return data[data.length - 1];
+  };
+
+  const getDate = (iso) => {
+    const date = new Date(iso);
+    const now = new Date();
+
+    const isToday = date.toDateString() === now.toDateString();
+
+    return isToday
+      ? date.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })
+      : date.toLocaleDateString("en-US");
+  };
+
+  const renderGroupList = async () => {
+    const userId = await checkAuth();
+    const rooms = await getRooms(userId);
+    const list = document.querySelector(".friends-list");
+    list.innerHTML = "";
+
+    for (const room of rooms) {
+      socket.emit("joinRoom", { roomId: room._id, username: userId });
+
+      const message = await getRoomLastMessage(room._id);
+
+      const listItem = document.createElement("li");
+      listItem.classList.add("friend-item");
+      listItem.dataset.roomId = room._id;
+      console.log(message);
+
+      let lastMsgText = "Start the conversation!";
+      let lastMsgPrefix = "";
+      let lastDate = "";
+
+      if (message) {
+        lastMsgPrefix =
+          message.senderId._id === userId
+            ? "You:"
+            : `${message.senderId.firstName}:`;
+        lastMsgText = message.message;
+        lastDate = message ? getDate(message.createdAt) : "";
+      }
+
+      listItem.innerHTML = `
+        <a href="/${room._id}">
+          <img src="https://unavatar.io/github/${room.name}" alt="${room.name}" class="friend-avatar" />
+          <div class="friend-info">
+            <span class="friend-name">${room.name}</span>
+            <span class="last-message">${lastMsgPrefix} ${lastMsgText}</span>
+          </div>
+          <span class="last-date">${lastDate}</span>
+        </a>
+      `;
+      list.appendChild(listItem);
+    }
+  };
+
+  renderGroupList();
+
+  // Modal functionality
+  const addFriendBtn = document.querySelector("#add-friend-button");
+  const addFriendModal = document.querySelector("#add-friend-modal");
+  const addFriendForm = document.querySelector("#add-friend-form");
+  const membersSelect = addFriendForm.querySelector('select[name="members"]');
+
+  addFriendBtn.addEventListener("click", async () => {
+    const users = await getFriends();
+    const membersContainer = document.getElementById("members-container");
+    membersContainer.innerHTML = "";
+    users.forEach((user) => {
+      const wrapper = document.createElement("label");
+      wrapper.className = "chip";
+
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.name = "members";
+      checkbox.value = user._id;
+
+      const span = document.createElement("span");
+      span.textContent = `${user.firstName} ${user.lastName}`;
+
+      wrapper.appendChild(checkbox);
+      wrapper.appendChild(span);
+      membersContainer.appendChild(wrapper);
+    });
+
+    addFriendModal.style.display = "block";
+    addFriendModal.showModal();
+  });
+
+  addFriendModal.addEventListener("close", () => {
+    addFriendModal.style.display = "none";
+  });
+
+  addFriendModal.addEventListener("click", (e) => {
+    if (e.target === addFriendModal) {
+      addFriendModal.close();
+    }
+  });
+
+  addFriendForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const formData = new FormData(addFriendForm);
+    const groupName = formData.get("groupName");
+    const members = Array.from(
+      addFriendForm.querySelectorAll('input[name="members"]:checked')
+    ).map((input) => input.value);
+
+    const userId = await checkAuth();
+
+    const res = await fetch("http://localhost:3500/room/group", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        name: groupName,
+        users: [userId, ...members],
+      }),
+    });
+
+    if (res.ok) {
+      addFriendModal.close();
+      renderGroupList();
+    } else {
+      alert("Error creating group");
+    }
+  });
+
+  socket.on("newMessage", async (message) => {
+    const userId = await checkAuth();
+    const userInfo = await getUserInfo(message.senderId);
+    const currentPath = window.location.pathname;
+    const isInRoom = currentPath === `/${message.roomId}`;
+
+    const listItem = document.querySelector(
+      `[data-room-id="${message.roomId}"]`
+    );
+    if (listItem && !isInRoom) {
+      const lastMessageSpan = listItem.querySelector(".last-message");
+      if (lastMessageSpan) {
+        lastMessageSpan.innerHTML = `
+      ${message.senderId === userId ? "You:" : `${userInfo.firstName || "Someone"}:`}
+      ${message.message}
+    `;
+      }
+      listItem.classList.add("unread");
+    }
+  });
+</script>
+
+<style is:global>
+  body {
+    min-height: 100vh;
+  }
+
+  .container {
+    margin: auto;
+    max-width: 450px;
+    height: 100%;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    scroll-behavior: smooth;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .top-half {
+    background-color: var(--main-color);
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    justify-items: center;
+    align-items: flex-end;
+    position: relative;
+  }
+
+  .top-half::after {
+    content: "";
+    width: calc(50% - 44px);
+    height: 10px;
+    position: absolute;
+    background-color: white;
+    left: 0;
+    bottom: 0;
+    border-top-right-radius: 15px 12px;
+    z-index: 20;
+  }
+  .top-half::before {
+    content: "";
+    width: calc(50% - 44px);
+    height: 10px;
+    position: absolute;
+    background-color: white;
+    right: 0;
+    bottom: 0;
+    border-top-left-radius: 15px 12px;
+    z-index: 20;
+  }
+
+  .face-container {
+    position: relative;
+    width: 70px;
+    height: 70px;
+    top: 30%;
+    border-radius: 50%;
+    outline: solid 11px var(--main-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    /* overflow: hidden; */
+  }
+
+  #logout {
+    position: absolute;
+    z-index: 20;
+    background-color: white;
+    right: 5px;
+    top: 5px;
+    cursor: pointer;
+  }
+
+  .face {
+    border-radius: 50%;
+    object-fit: contain;
+    object-position: 1px 18px;
+    width: 100%;
+    height: 100%;
+    background-color: #fff;
+    box-shadow: inset 0 0 9px var(--main-color);
+  }
+
+  .friends-list::-webkit-scrollbar {
+    display: none;
+  }
+
+  .friends-list {
+    width: 100%;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    overflow-y: scroll;
+  }
+
+  .friend-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px;
+    /* background-color: #f9f9f9; */
+    transition: background-color 0.2s;
+    cursor: pointer;
+    position: relative;
+    justify-content: flex-start;
+  }
+
+  .friend-item a {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    /* background-color: #f9f9f9; */
+    position: relative;
+    justify-content: flex-start;
+  }
+
+  .friend-item:hover {
+    background-color: #ececec;
+  }
+
+  .friend-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+  }
+
+  .friend-name {
+    font-weight: 500;
+    font-size: 1rem;
+  }
+
+  .friend-info {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .last-message {
+    color: gray;
+    font-size: 0.9rem;
+    margin-top: 2px;
+    max-width: 250px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .friend-item.unread .last-message {
+    color: #000;
+    font-weight: 500;
+  }
+
+  .last-date {
+    margin-left: auto;
+    font-size: 0.75rem;
+    color: gray;
+    align-self: flex-start;
+  }
+
+  #add-friend-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 3.5rem;
+    height: 3.5rem;
+    background-color: #f6ae2b;
+    color: white;
+    font-size: 2rem;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+  }
+
+  #add-friend-modal {
+    border: none;
+    margin: auto;
+    border-radius: 10px;
+    max-width: 300px;
+    width: 90%;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    background: white;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  }
+
+  #add-friend-form {
+    display: flex;
+    flex-direction: column;
+    padding: 2rem;
+    gap: 1rem;
+  }
+
+  #add-friend-form h2 {
+    color: #f6ae2b;
+    font-weight: 600;
+  }
+
+  #add-friend-form input {
+    padding: 0.9rem 0.5rem;
+    border: solid 2px #f6ae2b;
+    border-radius: 10px;
+    height: 1.5rem;
+  }
+
+  #add-friend-form input:focus {
+    outline: none;
+  }
+
+  .checkbox-chip-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .chip {
+    display: flex;
+    align-items: center;
+    background-color: #fff;
+    border: 2px solid #f6ae2b;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    user-select: none;
+  }
+
+  .chip span {
+    padding: 0.4rem 0.8rem;
+  }
+
+  .chip input[type="checkbox"] {
+    display: none;
+  }
+
+  .chip input[type="checkbox"]:checked + span {
+    background-color: #f6ae2b;
+    color: white;
+    border-radius: 20px;
+    padding: 0.4rem 0.8rem;
+  }
+
+  .add-btn {
+    border-radius: 20px;
+    height: 2rem;
+    font-size: 1.1rem;
+    border: solid 4px #f6ae2b;
+    background-color: #f6ae2b;
+    color: white;
+    cursor: pointer;
+  }
+</style>

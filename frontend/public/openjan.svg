@@ -1,0 +1,36 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20010904//EN"
+ "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
+<svg version="1.0" xmlns="http://www.w3.org/2000/svg"
+ width="133pt" height="89pt" viewBox="0 0 133 89"
+ preserveAspectRatio="xMidYMid meet">
+
+  <!-- 其他面部圖形（嘴巴/輪廓） -->
+  <g transform="translate(0,80) scale(0.1,-0.1)" fill="#000000" stroke="none">
+    <path d="M569 461 c-48 -16 -66 -30 -83 -66 -33 -69 10 -131 107 -156 107 -26
+    197 19 197 100 0 83 -40 122 -134 127 -33 2 -73 0 -87 -5z"/>
+    <path d="M347 230 c-11 -43 32 -134 79 -165 64 -42 208 -64 300 -45 107 22
+    174 77 174 145 0 36 -24 32 -50 -10 -13 -22 -41 -44 -76 -61 -49 -24 -62 -26
+    -142 -22 -125 6 -199 50 -237 141 -17 41 -40 49 -48 17z"/>
+  </g>
+
+  <!-- 左眼：黑色圓形版本 -->
+  <circle id="eyeLeftOpen" cx="30" cy="22" r="10" fill="black">
+    <animate attributeName="opacity" values="1;1;1;0;0;0;1" keyTimes="0;0.2;0.4;0.5;0.6;0.8;1" dur="1.5s" repeatCount="indefinite"/>
+  </circle>
+
+  <!-- 左眼：原始 path 版本 -->
+<g transform="translate(0,80) scale(0.1,-0.1)" fill="#000000" stroke="none">
+  <path d="M140 645 c0 -8 20 -26 45 -41 25 -14 45 -29 45 -34 0 -4 -25 -7 -55
+        -6 -62 1 -74 -15 -21 -27 43 -11 47 -27 8 -27 -16 0 -37 -6 -48 -14 -18 -14
+        -18 -15 -2 -21 17 -7 232 20 249 31 24 14 0 37 -94 93 -108 64 -127 71 -127
+        46z">
+    <animate attributeName="opacity" values="0;0;0;1;1;1;0" keyTimes="0;0.2;0.4;0.5;0.6;0.8;1" dur="1.5s" repeatCount="indefinite"/>
+  </path>
+</g>
+
+  <!-- 右眼：黑色圓形版本 -->
+  <circle id="eyeRightOpen" cx="105" cy="30" r="10" fill="black">
+  </circle>
+
+</svg>
