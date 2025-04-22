@@ -13,9 +13,30 @@
     <a href="/profile"><i class="fa-solid fa-user"></i><span>Profile</span></a>
   </div>
   <div class="logout-btn">
-    <a href="/logout"><i class="fa-solid fa-power-off"></i><span>Log out</span></a>
+    <a href="/logout" class="logout"
+      ><i class="fa-solid fa-power-off"></i><span>Log out</span></a
+    >
   </div>
 </div>
+
+<script>
+  const logout = async () => {
+    const res = await fetch(`http://localhost:3500/user/logout`, {
+      method: "GET",
+      credentials: "include",
+    });
+    if (!res.ok) {
+      console.error("Something went wrong");
+      return;
+    }
+    window.location.href = "/";
+  };
+  const btn = document.querySelector(".logout");
+  btn?.addEventListener("click", (e) => {
+    e.preventDefault()
+    logout();
+  });
+</script>
 
 <style>
   .menu-container {
@@ -27,7 +48,7 @@
     align-items: center;
     margin-top: auto;
   }
-  .menu-container > div a span{
+  .menu-container > div a span {
     font-size: 0.89rem;
   }
   .menu-container > div,
